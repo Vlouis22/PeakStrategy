@@ -1,0 +1,1912 @@
+[
+  {
+    "company": "BERKSHIRE HATHAWAY INC",
+    "manager": "Warren Buffett",
+    "cik": "0001067983"
+  },
+  {
+    "company": "Scion Asset Management, LLC",
+    "manager": "Michael Burry",
+    "cik": "0001649339"
+  },
+  {
+    "company": "BlackRock Inc.",
+    "manager": null,
+    "cik": "0001364742"
+  },
+  {
+    "company": "RENAISSANCE TECHNOLOGIES LLC",
+    "manager": "James Simons",
+    "cik": "0001037389"
+  },
+  {
+    "company": "CITADEL ADVISORS LLC",
+    "manager": "Ken Griffin",
+    "cik": "0001423053"
+  },
+  {
+    "company": "BAKER BROS. ADVISORS LP",
+    "manager": "Julian and Felix Baker",
+    "cik": "0001263508"
+  },
+  {
+    "company": "Bridgewater Associates, LP",
+    "manager": "Ray Dalio, Bob Prince",
+    "cik": "0001350694"
+  },
+  {
+    "company": "VANGUARD GROUP INC",
+    "manager": null,
+    "cik": "0000102909"
+  },
+  {
+    "company": "SABBY MANAGEMENT, LLC",
+    "manager": "Hal David Mintz",
+    "cik": "0001535610"
+  },
+  {
+    "company": "PERCEPTIVE ADVISORS LLC",
+    "manager": "Joseph Edelman",
+    "cik": "0001224962"
+  },
+  {
+    "company": "Point72 Asset Management, L.P.",
+    "manager": "Steven Cohen",
+    "cik": "0001603466"
+  },
+  {
+    "company": "BAUPOST GROUP LLC/MA",
+    "manager": "Seth Klarman",
+    "cik": "0001061768"
+  },
+  {
+    "company": "ARK Investment Management LLC",
+    "manager": "Catherine Wood",
+    "cik": "0001579984"
+  },
+  {
+    "company": "Pershing Square Capital Management, L.P.",
+    "manager": "Bill Ackman",
+    "cik": "0001336528"
+  },
+  {
+    "company": "MORGAN STANLEY",
+    "manager": null,
+    "cik": "0000895421"
+  },
+  {
+    "company": "SUSQUEHANNA INTERNATIONAL GROUP, LLP",
+    "manager": null,
+    "cik": "0001446194"
+  },
+  {
+    "company": "GOLDMAN SACHS GROUP INC",
+    "manager": null,
+    "cik": "0000886982"
+  },
+  {
+    "company": "TIGER GLOBAL MANAGEMENT LLC",
+    "manager": "Chase Coleman, Feroz Dewan",
+    "cik": "0001167483"
+  },
+  {
+    "company": "Duquesne Family Office LLC",
+    "manager": "Stanley Druckenmiller",
+    "cik": "0001536411"
+  },
+  {
+    "company": "RA CAPITAL MANAGEMENT, L.P.",
+    "manager": "Peter Kolchinsky",
+    "cik": "0001346824"
+  },
+  {
+    "company": "ARMISTICE CAPITAL, LLC",
+    "manager": "Steven Boyd",
+    "cik": "0001601086"
+  },
+  {
+    "company": "JPMORGAN CHASE & CO",
+    "manager": null,
+    "cik": "0000019617"
+  },
+  {
+    "company": "FMR LLC",
+    "manager": null,
+    "cik": "0000315066"
+  },
+  {
+    "company": "SOROS FUND MANAGEMENT LLC",
+    "manager": "George Soros",
+    "cik": "0001029160"
+  },
+  {
+    "company": "JANE STREET GROUP, LLC",
+    "manager": null,
+    "cik": "0001595888"
+  },
+  {
+    "company": "Third Point LLC",
+    "manager": "Dan Loeb",
+    "cik": "0001040273"
+  },
+  {
+    "company": "BAILLIE GIFFORD & CO",
+    "manager": null,
+    "cik": "0001088875"
+  },
+  {
+    "company": "MILLENNIUM MANAGEMENT LLC",
+    "manager": "Israel Englander",
+    "cik": "0001273087"
+  },
+  {
+    "company": "Melvin Capital Management LP",
+    "manager": "Gabriel Plotkin",
+    "cik": "0001628110"
+  },
+  {
+    "company": "ICAHN CARL C",
+    "manager": "Carl Icahn",
+    "cik": "0000921669"
+  },
+  {
+    "company": "ORBIMED ADVISORS LLC",
+    "manager": "Samuel Isaly",
+    "cik": "0001055951"
+  },
+  {
+    "company": "INTRACOASTAL CAPITAL, LLC",
+    "manager": "Mitchell Kopin and Daniel Asher",
+    "cik": "0001646799"
+  },
+  {
+    "company": "CVI Investments, Inc.",
+    "manager": null,
+    "cik": "0001649553"
+  },
+  {
+    "company": "GREENLIGHT CAPITAL INC",
+    "manager": "David Einhorn",
+    "cik": "0001079114"
+  },
+  {
+    "company": "STATE STREET CORP",
+    "manager": null,
+    "cik": "0000093751"
+  },
+  {
+    "company": "BIOTECHNOLOGY VALUE FUND L P",
+    "manager": "Mark N. Lampert",
+    "cik": "0000918923"
+  },
+  {
+    "company": "Empery Asset Management, LP",
+    "manager": "Ryan Matthew Lane and Martin David Hoe",
+    "cik": "0001469336"
+  },
+  {
+    "company": "EcoR1 Capital, LLC",
+    "manager": null,
+    "cik": "0001587114"
+  },
+  {
+    "company": "Ark Investment Management Llc",
+    "manager": null,
+    "cik": "0001579984"
+  },
+  {
+    "company": "TWO SIGMA INVESTMENTS, LP",
+    "manager": "John Overdeck, David Siegel",
+    "cik": "0001179392"
+  },
+  {
+    "company": "Starboard Value LP",
+    "manager": "Jeffrey Smith",
+    "cik": "0001517137"
+  },
+  {
+    "company": "Hudson Bay Capital Management LP",
+    "manager": null,
+    "cik": "0001393825"
+  },
+  {
+    "company": "BANK OF AMERICA CORP /DE/",
+    "manager": null,
+    "cik": "0000070858"
+  },
+  {
+    "company": "BlackRock, Inc.",
+    "manager": null,
+    "cik": "0001364742"
+  },
+  {
+    "company": "Ark ETF Trust - ARK Innovation ETF",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "Gotham Asset Management, LLC",
+    "manager": "Joel Greenblatt",
+    "cik": "0001510387"
+  },
+  {
+    "company": "APPALOOSA MANAGEMENT LP",
+    "manager": "David Tepper",
+    "cik": "0001006438"
+  },
+  {
+    "company": "Himalaya Capital Management LLC",
+    "manager": "Li Lu",
+    "cik": "0001709323"
+  },
+  {
+    "company": "COATUE MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001135730"
+  },
+  {
+    "company": "OAKTREE CAPITAL MANAGEMENT LP",
+    "manager": "Howard Marks",
+    "cik": "0000949509"
+  },
+  {
+    "company": "Blackstone Alternative Investment Funds - Blackstone Alternative Multi-Strategy Fund Class I",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "CASCADE INVESTMENT, L.L.C.",
+    "manager": "William Gates and Michael Larson",
+    "cik": "0001052192"
+  },
+  {
+    "company": "LONE PINE CAPITAL LLC",
+    "manager": "Stephen Mandel",
+    "cik": "0001061165"
+  },
+  {
+    "company": "Avoro Capital Advisors LLC",
+    "manager": null,
+    "cik": "0001633313"
+  },
+  {
+    "company": "GAMCO INVESTORS, INC. ET AL",
+    "manager": "Mario Gabelli",
+    "cik": "0000807249"
+  },
+  {
+    "company": "Altimeter Capital Management, LP",
+    "manager": null,
+    "cik": "0001541617"
+  },
+  {
+    "company": "Whale Rock Capital Management LLC",
+    "manager": null,
+    "cik": "0001387322"
+  },
+  {
+    "company": "Dalal Street, LLC",
+    "manager": "Mohnish Pabrai",
+    "cik": "0001549575"
+  },
+  {
+    "company": "D. E. Shaw & Co., Inc.",
+    "manager": "DE Shaw",
+    "cik": "0001009207"
+  },
+  {
+    "company": "TUDOR INVESTMENT CORP ET AL",
+    "manager": "Paul Tudor Jones",
+    "cik": "0000923093"
+  },
+  {
+    "company": "Redmile Group, LLC",
+    "manager": null,
+    "cik": "0001425738"
+  },
+  {
+    "company": "VANGUARD INDEX FUNDS - Vanguard Total Stock Market Index Fund Investor Shares",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "VIKING GLOBAL INVESTORS LP",
+    "manager": "Andreas Halvorsen, David Ott",
+    "cik": "0001103804"
+  },
+  {
+    "company": "Opaleye Management Inc.",
+    "manager": null,
+    "cik": "0001595855"
+  },
+  {
+    "company": "GEODE CAPITAL MANAGEMENT, LLC",
+    "manager": null,
+    "cik": "0001214717"
+  },
+  {
+    "company": "HILLHOUSE CAPITAL MANAGEMENT, LTD.",
+    "manager": null,
+    "cik": "0001510589"
+  },
+  {
+    "company": "Elliott Investment Management L.P.",
+    "manager": "Paul Singer",
+    "cik": "0001791786"
+  },
+  {
+    "company": "PRICE T ROWE ASSOCIATES INC /MD/",
+    "manager": null,
+    "cik": "0000080255"
+  },
+  {
+    "company": "Abdiel Capital Advisors, LP",
+    "manager": null,
+    "cik": "0001578684"
+  },
+  {
+    "company": "SIMPLEX TRADING, LLC",
+    "manager": null,
+    "cik": "0001488542"
+  },
+  {
+    "company": "RC Ventures LLC",
+    "manager": null,
+    "cik": "0001334690"
+  },
+  {
+    "company": "AQR CAPITAL MANAGEMENT LLC",
+    "manager": "Cliff Asness",
+    "cik": "0001167557"
+  },
+  {
+    "company": "WELLINGTON MANAGEMENT GROUP LLP",
+    "manager": null,
+    "cik": "0000902219"
+  },
+  {
+    "company": "BILL & MELINDA GATES FOUNDATION TRUST",
+    "manager": null,
+    "cik": "0001166559"
+  },
+  {
+    "company": "RTW INVESTMENTS, LP",
+    "manager": null,
+    "cik": "0001493215"
+  },
+  {
+    "company": "Sarissa Capital Management LP",
+    "manager": null,
+    "cik": "0001577524"
+  },
+  {
+    "company": "APPALOOSA LP",
+    "manager": null,
+    "cik": "0001656456"
+  },
+  {
+    "company": "Altium Capital Management LP",
+    "manager": null,
+    "cik": "0001746382"
+  },
+  {
+    "company": "Boxer Capital, LLC",
+    "manager": null,
+    "cik": "0001465837"
+  },
+  {
+    "company": "Virtu Financial LLC",
+    "manager": null,
+    "cik": "0001533964"
+  },
+  {
+    "company": "Cormorant Asset Management, LP",
+    "manager": null,
+    "cik": "0001583977"
+  },
+  {
+    "company": "Saba Capital Management, L.P.",
+    "manager": "Boaz Ronald Weinstein",
+    "cik": "0001510281"
+  },
+  {
+    "company": "Tencent Holdings Ltd",
+    "manager": null,
+    "cik": "0001293451"
+  },
+  {
+    "company": "AKRE CAPITAL MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001112520"
+  },
+  {
+    "company": "Anson Funds Management LP",
+    "manager": "Bruce Winson",
+    "cik": "0001491072"
+  },
+  {
+    "company": "BVF INC/IL",
+    "manager": null,
+    "cik": "0001056807"
+  },
+  {
+    "company": "UBS ASSET MANAGEMENT AMERICAS INC",
+    "manager": null,
+    "cik": "0000861177"
+  },
+  {
+    "company": "NEA Management Company, LLC",
+    "manager": null,
+    "cik": "0001512848"
+  },
+  {
+    "company": "Fisher Asset Management, LLC",
+    "manager": null,
+    "cik": "0000850529"
+  },
+  {
+    "company": "Casdin Capital, LLC",
+    "manager": null,
+    "cik": "0001534261"
+  },
+  {
+    "company": "PUBLIC INVESTMENT FUND",
+    "manager": null,
+    "cik": "0001767640"
+  },
+  {
+    "company": "TCI Fund Management Ltd",
+    "manager": null,
+    "cik": "0001647251"
+  },
+  {
+    "company": "UBS Group AG",
+    "manager": null,
+    "cik": "0001610520"
+  },
+  {
+    "company": "Elliott Management Corporation",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "BIGGER CAPITAL FUND L P",
+    "manager": null,
+    "cik": "0001288478"
+  },
+  {
+    "company": "DIMENSIONAL FUND ADVISORS LP",
+    "manager": null,
+    "cik": "0000354204"
+  },
+  {
+    "company": "Cutler Group LP",
+    "manager": null,
+    "cik": "0001534270"
+  },
+  {
+    "company": "DEERFIELD MANAGEMENT COMPANY, L.P. (SERIES C)",
+    "manager": null,
+    "cik": "0001009258"
+  },
+  {
+    "company": "ADAGE CAPITAL PARTNERS GP, L.L.C.",
+    "manager": "Phil Gross, Robert Atchinson",
+    "cik": "0001165408"
+  },
+  {
+    "company": "AWM Investment Company, Inc.",
+    "manager": null,
+    "cik": "0001535264"
+  },
+  {
+    "company": "WOLVERINE TRADING, LLC",
+    "manager": null,
+    "cik": "0000927337"
+  },
+  {
+    "company": "CITADEL SECURITIES LLC",
+    "manager": null,
+    "cik": "0001146184"
+  },
+  {
+    "company": "BLACKROCK FUNDS - BLACKROCK EXCHANGE PORTFOLIO BLACKROCK",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "VANGUARD INDEX FUNDS - Vanguard Extended Market Index Fund Investor Shares",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "Fundsmith LLP",
+    "manager": "Terry Smith",
+    "cik": "0001569205"
+  },
+  {
+    "company": "Capital World Investors",
+    "manager": null,
+    "cik": "0001422849"
+  },
+  {
+    "company": "HILLHOUSE CAPITAL ADVISORS, LTD.",
+    "manager": null,
+    "cik": "0001762304"
+  },
+  {
+    "company": "PAULSON & CO. INC.",
+    "manager": "John Paulson",
+    "cik": "0001035674"
+  },
+  {
+    "company": "WELLS FARGO & COMPANY/MN",
+    "manager": null,
+    "cik": "0000072971"
+  },
+  {
+    "company": "CHARLES SCHWAB INVESTMENT MANAGEMENT INC",
+    "manager": null,
+    "cik": "0000884546"
+  },
+  {
+    "company": "GREAT POINT PARTNERS LLC",
+    "manager": null,
+    "cik": "0001281446"
+  },
+  {
+    "company": "Invesco Ltd.",
+    "manager": null,
+    "cik": "0000914208"
+  },
+  {
+    "company": "GROUP ONE TRADING, L.P.",
+    "manager": null,
+    "cik": "0000932540"
+  },
+  {
+    "company": "Temasek Holdings (Private) Ltd",
+    "manager": null,
+    "cik": "0001021944"
+  },
+  {
+    "company": "ValueAct Holdings, L.P.",
+    "manager": "Jeff Ubben",
+    "cik": "0001418814"
+  },
+  {
+    "company": "Broadfin Capital, LLC",
+    "manager": null,
+    "cik": "0001511901"
+  },
+  {
+    "company": "Elliott Associates, L.P.",
+    "manager": null,
+    "cik": "0000904495"
+  },
+  {
+    "company": "Ark ETF Trust - ARK Genomic Revolution ETF",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "Iroquois Capital Management, LLC",
+    "manager": null,
+    "cik": "0001481867"
+  },
+  {
+    "company": "TWO SIGMA ADVISERS, LP",
+    "manager": null,
+    "cik": "0001478735"
+  },
+  {
+    "company": "Man Group plc",
+    "manager": null,
+    "cik": "0001637460"
+  },
+  {
+    "company": "Deep Track Capital, LP",
+    "manager": null,
+    "cik": "0001856083"
+  },
+  {
+    "company": "Swiss National Bank",
+    "manager": null,
+    "cik": "0001582202"
+  },
+  {
+    "company": "TWO SIGMA SECURITIES, LLC",
+    "manager": null,
+    "cik": "0001450144"
+  },
+  {
+    "company": "CITIGROUP INC",
+    "manager": null,
+    "cik": "0000831001"
+  },
+  {
+    "company": "Ikarian Capital, LLC",
+    "manager": null,
+    "cik": "0001778253"
+  },
+  {
+    "company": "NORTHERN TRUST CORP",
+    "manager": null,
+    "cik": "0000073124"
+  },
+  {
+    "company": "DEUTSCHE BANK AG\\",
+    "manager": null,
+    "cik": "0000948046"
+  },
+  {
+    "company": "Bridgewater Advisors Inc.",
+    "manager": null,
+    "cik": "0001600319"
+  },
+  {
+    "company": "Blackstone Group Inc",
+    "manager": null,
+    "cik": "0001393818"
+  },
+  {
+    "company": "Point72 Hong Kong Ltd",
+    "manager": "Steven Cohen",
+    "cik": "0001599822"
+  },
+  {
+    "company": "Ark ETF Trust - ARK Next Generation Internet ETF",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "Consonance Capital Management LP",
+    "manager": null,
+    "cik": "0001544773"
+  },
+  {
+    "company": "ROYAL BANK OF CANADA",
+    "manager": null,
+    "cik": "0000352613"
+  },
+  {
+    "company": "TANG CAPITAL MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001232621"
+  },
+  {
+    "company": "BARCLAYS PLC",
+    "manager": null,
+    "cik": "0000312069"
+  },
+  {
+    "company": "Kynikos Associates LP",
+    "manager": "James S. \"Jim\" Chanos",
+    "cik": "0001446440"
+  },
+  {
+    "company": "Senvest Management, LLC",
+    "manager": null,
+    "cik": "0001328785"
+  },
+  {
+    "company": "D. E. SHAW & CO, L.P.",
+    "manager": "DE Shaw",
+    "cik": "0001009268"
+  },
+  {
+    "company": "Rockefeller Capital Management L.P.",
+    "manager": null,
+    "cik": "0001739439"
+  },
+  {
+    "company": "ROTHSCHILD INVESTMENT CORP /IL",
+    "manager": null,
+    "cik": "0001020918"
+  },
+  {
+    "company": "JANA PARTNERS LLC",
+    "manager": null,
+    "cik": "0001159159"
+  },
+  {
+    "company": "Nantahala Capital Management, LLC",
+    "manager": null,
+    "cik": "0001472322"
+  },
+  {
+    "company": "NORGES BANK",
+    "manager": null,
+    "cik": "0001374170"
+  },
+  {
+    "company": "FARALLON CAPITAL MANAGEMENT LLC",
+    "manager": "Thomas Steyer",
+    "cik": "0000909661"
+  },
+  {
+    "company": "LIGHT STREET CAPITAL MANAGEMENT, LLC",
+    "manager": null,
+    "cik": "0001569049"
+  },
+  {
+    "company": "ALKEON CAPITAL MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001230239"
+  },
+  {
+    "company": "SANDS CAPITAL MANAGEMENT, LLC",
+    "manager": null,
+    "cik": "0001020066"
+  },
+  {
+    "company": "Bank of New York Mellon Corp",
+    "manager": null,
+    "cik": "0001390777"
+  },
+  {
+    "company": "Vivo Capital, LLC",
+    "manager": null,
+    "cik": "0001674712"
+  },
+  {
+    "company": "Capital Research Global Investors",
+    "manager": null,
+    "cik": "0001422848"
+  },
+  {
+    "company": "TANG CAPITAL PARTNERS LP",
+    "manager": null,
+    "cik": "0001191935"
+  },
+  {
+    "company": "TRIAN FUND MANAGEMENT, L.P.",
+    "manager": null,
+    "cik": "0001345471"
+  },
+  {
+    "company": "Dorsey Asset Management, LLC",
+    "manager": null,
+    "cik": "0001671657"
+  },
+  {
+    "company": "HIRSCHMAN ORIN",
+    "manager": null,
+    "cik": "0001131362"
+  },
+  {
+    "company": "JENNISON ASSOCIATES LLC",
+    "manager": null,
+    "cik": "0000053417"
+  },
+  {
+    "company": "Venrock Healthcare Capital Partners II, L.P.",
+    "manager": null,
+    "cik": "0001602264"
+  },
+  {
+    "company": "Dragoneer Investment Group, LLC",
+    "manager": null,
+    "cik": "0001602189"
+  },
+  {
+    "company": "MAVERICK CAPITAL LTD",
+    "manager": null,
+    "cik": "0000934639"
+  },
+  {
+    "company": "Bill & Melinda Gates Foundation",
+    "manager": null,
+    "cik": "0001663801"
+  },
+  {
+    "company": "Silver Lake Group, L.L.C.",
+    "manager": null,
+    "cik": "0001418226"
+  },
+  {
+    "company": "FRANKLIN RESOURCES INC",
+    "manager": null,
+    "cik": "0000038777"
+  },
+  {
+    "company": "BB BIOTECH AG",
+    "manager": null,
+    "cik": "0000924223"
+  },
+  {
+    "company": "ABRAMS CAPITAL MANAGEMENT, L.P.",
+    "manager": null,
+    "cik": "0001358706"
+  },
+  {
+    "company": "CANADA PENSION PLAN INVESTMENT BOARD",
+    "manager": null,
+    "cik": "0001283718"
+  },
+  {
+    "company": "D1 Capital Partners L.P.",
+    "manager": "Daniel Sundheim",
+    "cik": "0001747057"
+  },
+  {
+    "company": "SOFTBANK GROUP CORP",
+    "manager": null,
+    "cik": "0001065521"
+  },
+  {
+    "company": "NVIDIA CORP",
+    "manager": null,
+    "cik": "0001045810"
+  },
+  {
+    "company": "DAFNA Capital Management LLC",
+    "manager": null,
+    "cik": "0001389933"
+  },
+  {
+    "company": "RA Capital Healthcare Fund LP",
+    "manager": null,
+    "cik": "0001315082"
+  },
+  {
+    "company": "Parallax Volatility Advisers, L.P.",
+    "manager": null,
+    "cik": "0001521001"
+  },
+  {
+    "company": "L1 Capital Global Opportunities Master Fund, Ltd.",
+    "manager": null,
+    "cik": "0001702202"
+  },
+  {
+    "company": "Stonepine Capital Management, LLC",
+    "manager": null,
+    "cik": "0001440771"
+  },
+  {
+    "company": "CREDIT SUISSE AG/",
+    "manager": null,
+    "cik": "0000824468"
+  },
+  {
+    "company": "BNP PARIBAS ARBITRAGE, SA",
+    "manager": null,
+    "cik": "0001166588"
+  },
+  {
+    "company": "Select Equity Group, L.P.",
+    "manager": null,
+    "cik": "0001592643"
+  },
+  {
+    "company": "Ark ETF Trust - ARK Autonomous Technology & Robotics ETF",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "Sumitomo Mitsui Trust Holdings, Inc.",
+    "manager": null,
+    "cik": "0001475365"
+  },
+  {
+    "company": "IFP Advisors, Inc",
+    "manager": null,
+    "cik": "0001641866"
+  },
+  {
+    "company": "iSHARES TRUST - iShares Russell 2000 ETF",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "Matrix Capital Management Company, LP",
+    "manager": "David Goel",
+    "cik": "0001410830"
+  },
+  {
+    "company": "CTC LLC",
+    "manager": null,
+    "cik": "0001445893"
+  },
+  {
+    "company": "Citadel Securities GP LLC",
+    "manager": null,
+    "cik": "0001721695"
+  },
+  {
+    "company": "Proequities, Inc.",
+    "manager": null,
+    "cik": "0000752798"
+  },
+  {
+    "company": "683 Capital Management, LLC",
+    "manager": null,
+    "cik": "0001404574"
+  },
+  {
+    "company": "Rock Springs Capital Management LP",
+    "manager": null,
+    "cik": "0001595725"
+  },
+  {
+    "company": "Night Owl Capital Management, LLC",
+    "manager": null,
+    "cik": "0001410833"
+  },
+  {
+    "company": "BROOKFIELD ASSET MANAGEMENT INC.",
+    "manager": "Bruce Flatt",
+    "cik": "0001001085"
+  },
+  {
+    "company": "Palo Alto Investors LP",
+    "manager": null,
+    "cik": "0001306923"
+  },
+  {
+    "company": "BlueCrest Capital Management Ltd",
+    "manager": "Michael Platt",
+    "cik": "0001363542"
+  },
+  {
+    "company": "Flynn James E",
+    "manager": null,
+    "cik": "0001352546"
+  },
+  {
+    "company": "CAS Investment Partners, LLC",
+    "manager": null,
+    "cik": "0001697591"
+  },
+  {
+    "company": "GLENVIEW CAPITAL MANAGEMENT, LLC",
+    "manager": null,
+    "cik": "0001138995"
+  },
+  {
+    "company": "cobas asset management, sgiic, s.a.",
+    "manager": null,
+    "cik": "0001705931"
+  },
+  {
+    "company": "Aquamarine Capital Management, LLC",
+    "manager": null,
+    "cik": "0001404599"
+  },
+  {
+    "company": "SUVRETTA CAPITAL MANAGEMENT, LLC",
+    "manager": null,
+    "cik": "0001569064"
+  },
+  {
+    "company": "DODGE & COX",
+    "manager": null,
+    "cik": "0000200217"
+  },
+  {
+    "company": "Sculptor Capital LP",
+    "manager": "Daniel Och",
+    "cik": "0001054587"
+  },
+  {
+    "company": "CALIFORNIA PUBLIC EMPLOYEES RETIREMENT SYSTEM",
+    "manager": null,
+    "cik": "0000919079"
+  },
+  {
+    "company": "Gamestop Corp.",
+    "manager": null,
+    "cik": "0001326380"
+  },
+  {
+    "company": "Magnetar Financial LLC",
+    "manager": null,
+    "cik": "0001352851"
+  },
+  {
+    "company": "Arlington Value Capital, LLC",
+    "manager": null,
+    "cik": "0001568820"
+  },
+  {
+    "company": "SCGE MANAGEMENT, L.P.",
+    "manager": null,
+    "cik": "0001537530"
+  },
+  {
+    "company": "Long Pond Capital, LP",
+    "manager": "John Khoury",
+    "cik": "0001499066"
+  },
+  {
+    "company": "SRS Investment Management, LLC",
+    "manager": null,
+    "cik": "0001503174"
+  },
+  {
+    "company": "BALYASNY ASSET MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001218710"
+  },
+  {
+    "company": "Musk Elon",
+    "manager": null,
+    "cik": "0001494730"
+  },
+  {
+    "company": "BlackRock Fund Advisors",
+    "manager": null,
+    "cik": "0001006249"
+  },
+  {
+    "company": "Alyeska Investment Group, L.P.",
+    "manager": null,
+    "cik": "0001453072"
+  },
+  {
+    "company": "Corvex Management LP",
+    "manager": "Keith Meister",
+    "cik": "0001535472"
+  },
+  {
+    "company": "Sio Capital Management, LLC",
+    "manager": null,
+    "cik": "0001482416"
+  },
+  {
+    "company": "Turtle Creek Asset Management Inc.",
+    "manager": null,
+    "cik": "0001484148"
+  },
+  {
+    "company": "IMC-Chicago, LLC",
+    "manager": null,
+    "cik": "0001115193"
+  },
+  {
+    "company": "DAVIDSON KEMPNER CAPITAL MANAGEMENT LP",
+    "manager": "Thomas Kempner, Marvin Davidson",
+    "cik": "0001595082"
+  },
+  {
+    "company": "Jefferies Group LLC",
+    "manager": null,
+    "cik": "0001084580"
+  },
+  {
+    "company": "RAYMOND JAMES & ASSOCIATES",
+    "manager": null,
+    "cik": "0001084208"
+  },
+  {
+    "company": "BANK OF MONTREAL /CAN/",
+    "manager": null,
+    "cik": "0000927971"
+  },
+  {
+    "company": "BlackRock Investment Management, LLC",
+    "manager": null,
+    "cik": "0001305227"
+  },
+  {
+    "company": "SUSQUEHANNA SECURITIES, LLC",
+    "manager": null,
+    "cik": "0000920417"
+  },
+  {
+    "company": "JANUS HENDERSON GROUP PLC",
+    "manager": null,
+    "cik": "0001274173"
+  },
+  {
+    "company": "PEAK6 Investments LLC",
+    "manager": null,
+    "cik": "0001756111"
+  },
+  {
+    "company": "GLAZER CAPITAL, LLC",
+    "manager": null,
+    "cik": "0001076809"
+  },
+  {
+    "company": "VANGUARD INSTITUTIONAL INDEX FUNDS - Vanguard Institutional Total Stock Market Index Fund Institutional Shares",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "PERISCOPE CAPITAL INC.",
+    "manager": null,
+    "cik": "0001695320"
+  },
+  {
+    "company": "EMINENCE CAPITAL, LP",
+    "manager": null,
+    "cik": "0001107310"
+  },
+  {
+    "company": "CALIFORNIA STATE TEACHERS RETIREMENT SYSTEM",
+    "manager": null,
+    "cik": "0001081019"
+  },
+  {
+    "company": "Logos Global Management LP",
+    "manager": null,
+    "cik": "0001792126"
+  },
+  {
+    "company": "ADW Capital Partners, L.P.",
+    "manager": "Adam Wyden",
+    "cik": "0001511001"
+  },
+  {
+    "company": "Cerberus Capital Management, L.P.",
+    "manager": null,
+    "cik": "0001525907"
+  },
+  {
+    "company": "Durable Capital Partners LP",
+    "manager": null,
+    "cik": "0001798849"
+  },
+  {
+    "company": "ALLIANCEBERNSTEIN L.P.",
+    "manager": null,
+    "cik": "0001109448"
+  },
+  {
+    "company": "Lincoln Park Capital Fund, LLC",
+    "manager": null,
+    "cik": "0001592644"
+  },
+  {
+    "company": "AMAZON COM INC",
+    "manager": null,
+    "cik": "0001018724"
+  },
+  {
+    "company": "ARROWSTREET CAPITAL, LIMITED PARTNERSHIP",
+    "manager": null,
+    "cik": "0001164508"
+  },
+  {
+    "company": "Fundsmith Equity Fund, L.p.",
+    "manager": null,
+    "cik": "0001520023"
+  },
+  {
+    "company": "ICONIQ Capital, LLC",
+    "manager": null,
+    "cik": "0001569709"
+  },
+  {
+    "company": "Grantham, Mayo, Van Otterloo & Co. LLC",
+    "manager": null,
+    "cik": "0001352662"
+  },
+  {
+    "company": "PRIMECAP MANAGEMENT CO/CA/",
+    "manager": null,
+    "cik": "0000763212"
+  },
+  {
+    "company": "NOMURA HOLDINGS INC",
+    "manager": null,
+    "cik": "0001163653"
+  },
+  {
+    "company": "Rubric Capital Management LP",
+    "manager": null,
+    "cik": "0001687509"
+  },
+  {
+    "company": "Capital International Investors",
+    "manager": null,
+    "cik": "0001562230"
+  },
+  {
+    "company": "Giverny Capital Inc.",
+    "manager": "Francois Rochon",
+    "cik": "0001641864"
+  },
+  {
+    "company": "FAIRFAX FINANCIAL HOLDINGS LTD/ CAN",
+    "manager": null,
+    "cik": "0000915191"
+  },
+  {
+    "company": "BUFFETT WARREN E",
+    "manager": null,
+    "cik": "0000315090"
+  },
+  {
+    "company": "LYTTON LAURENCE W",
+    "manager": null,
+    "cik": "0001105806"
+  },
+  {
+    "company": "MARSHALL WACE, LLP",
+    "manager": null,
+    "cik": "0001318757"
+  },
+  {
+    "company": "Schonfeld Strategic Advisors LLC",
+    "manager": null,
+    "cik": "0001665241"
+  },
+  {
+    "company": "MOORE CAPITAL MANAGEMENT, LP",
+    "manager": "Louis Bacon",
+    "cik": "0001448574"
+  },
+  {
+    "company": "GOLDMAN SACHS ASSET MANAGEMENT, L.P.",
+    "manager": null,
+    "cik": "0001229262"
+  },
+  {
+    "company": "VAN ECK ASSOCIATES CORP",
+    "manager": null,
+    "cik": "0000869178"
+  },
+  {
+    "company": "Citadel Advisors Holdings Lp",
+    "manager": null,
+    "cik": "0001567180"
+  },
+  {
+    "company": "Cascade Investment Advisors, Inc.",
+    "manager": null,
+    "cik": "0001681490"
+  },
+  {
+    "company": "Esousa Holdings LLC",
+    "manager": null,
+    "cik": "0001530749"
+  },
+  {
+    "company": "Ault Global Holdings, Inc.",
+    "manager": null,
+    "cik": "0000896493"
+  },
+  {
+    "company": "YACKTMAN ASSET MANAGEMENT LP",
+    "manager": "Donald Yacktman",
+    "cik": "0000905567"
+  },
+  {
+    "company": "GIC Private Ltd",
+    "manager": null,
+    "cik": "0000936828"
+  },
+  {
+    "company": "MARKEL CORP",
+    "manager": null,
+    "cik": "0000803509"
+  },
+  {
+    "company": "SPDR SERIES TRUST - SPDR(R) S&P(R) Biotech ETF",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "Camber Capital Management LP",
+    "manager": null,
+    "cik": "0001444043"
+  },
+  {
+    "company": "iSHARES TRUST - iShares Core S&P 500 ETF",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "Ayrton Capital LLC",
+    "manager": null,
+    "cik": "0001698148"
+  },
+  {
+    "company": "ROYCE & ASSOCIATES LP",
+    "manager": "Chuck Royce",
+    "cik": "0000906304"
+  },
+  {
+    "company": "Abdiel Qualified Master Fund LP",
+    "manager": null,
+    "cik": "0001508239"
+  },
+  {
+    "company": "Bain Capital Life Sciences Investors, LLC",
+    "manager": null,
+    "cik": "0001703031"
+  },
+  {
+    "company": "LAZARD ASSET MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001207017"
+  },
+  {
+    "company": "Morgan Stanley Insight Fund - Morgan Stanley Insight Fund A",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "UBS OCONNOR LLC",
+    "manager": null,
+    "cik": "0001132716"
+  },
+  {
+    "company": "EVENTIDE ASSET MANAGEMENT, LLC",
+    "manager": null,
+    "cik": "0001442891"
+  },
+  {
+    "company": "DUGGAN ROBERT W",
+    "manager": null,
+    "cik": "0001055919"
+  },
+  {
+    "company": "DAILY JOURNAL CORP",
+    "manager": "Charlie Munger",
+    "cik": "0000783412"
+  },
+  {
+    "company": "ALPHA CAPITAL ANSTALT",
+    "manager": null,
+    "cik": "0001140358"
+  },
+  {
+    "company": "HORIZON KINETICS ASSET MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001056823"
+  },
+  {
+    "company": "Neuberger Berman Group LLC",
+    "manager": null,
+    "cik": "0001465109"
+  },
+  {
+    "company": "SUSQUEHANNA FUNDAMENTAL INVESTMENTS, LLC",
+    "manager": null,
+    "cik": "0001446179"
+  },
+  {
+    "company": "Greenwoods Asset Management Ltd",
+    "manager": null,
+    "cik": "0001577133"
+  },
+  {
+    "company": "COMMODORE CAPITAL LP",
+    "manager": null,
+    "cik": "0001831942"
+  },
+  {
+    "company": "Novo Holdings A/S",
+    "manager": null,
+    "cik": "0001388325"
+  },
+  {
+    "company": "Alphabet Inc.",
+    "manager": null,
+    "cik": "0001652044"
+  },
+  {
+    "company": "Polar Asset Management Partners Inc.",
+    "manager": null,
+    "cik": "0001326389"
+  },
+  {
+    "company": "Brave Warrior Advisors, LLC",
+    "manager": null,
+    "cik": "0001553733"
+  },
+  {
+    "company": "Armistice Capital Fund LP",
+    "manager": null,
+    "cik": "0001554349"
+  },
+  {
+    "company": "FIDELITY CONCORD STREET TRUST - Fidelity Extended Market Index Fund",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "GENERATION INVESTMENT MANAGEMENT LLP",
+    "manager": null,
+    "cik": "0001375534"
+  },
+  {
+    "company": "ELEMENT CAPITAL MANAGEMENT LLC",
+    "manager": "Jeffrey Talpins",
+    "cik": "0001535630"
+  },
+  {
+    "company": "Samsara BioCapital, LLC",
+    "manager": null,
+    "cik": "0001744967"
+  },
+  {
+    "company": "Ark ETF Trust - ARK Fintech Innovation ETF",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "COOPERMAN LEON G",
+    "manager": null,
+    "cik": "0000898382"
+  },
+  {
+    "company": "Bares Capital Management, Inc.",
+    "manager": null,
+    "cik": "0001340807"
+  },
+  {
+    "company": "DnB Asset Management AS",
+    "manager": null,
+    "cik": "0001456670"
+  },
+  {
+    "company": "Artisan Partners Limited Partnership",
+    "manager": null,
+    "cik": "0001466153"
+  },
+  {
+    "company": "Alibaba Group Holding Ltd",
+    "manager": null,
+    "cik": "0001577552"
+  },
+  {
+    "company": "VANGUARD STAR FUNDS - Vanguard Total International Stock Index Fund Investor Shares",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "Weiss Asset Management LP",
+    "manager": null,
+    "cik": "0001357550"
+  },
+  {
+    "company": "Nuveen Asset Management, LLC",
+    "manager": null,
+    "cik": "0001521019"
+  },
+  {
+    "company": "BlackRock Advisors LLC",
+    "manager": null,
+    "cik": "0001086364"
+  },
+  {
+    "company": "GARDNER RUSSO & QUINN LLC",
+    "manager": null,
+    "cik": "0000860643"
+  },
+  {
+    "company": "VISTA EQUITY PARTNERS MANAGEMENT, LLC",
+    "manager": null,
+    "cik": "0001569532"
+  },
+  {
+    "company": "HARVARD MANAGEMENT CO INC",
+    "manager": null,
+    "cik": "0001082621"
+  },
+  {
+    "company": "SPROTT INC.",
+    "manager": null,
+    "cik": "0001512920"
+  },
+  {
+    "company": "ROBOTTI ROBERT",
+    "manager": null,
+    "cik": "0001105838"
+  },
+  {
+    "company": "Ghost Tree Capital, LLC",
+    "manager": null,
+    "cik": "0001595851"
+  },
+  {
+    "company": "Anchorage Capital Group, L.L.C.",
+    "manager": null,
+    "cik": "0001300714"
+  },
+  {
+    "company": "Sofinnova Investments, Inc.",
+    "manager": null,
+    "cik": "0001631134"
+  },
+  {
+    "company": "Mintbroker International, Ltd.",
+    "manager": null,
+    "cik": "0001742576"
+  },
+  {
+    "company": "FNY Investment Advisers, LLC",
+    "manager": null,
+    "cik": "0001742998"
+  },
+  {
+    "company": "ZACKS INVESTMENT MANAGEMENT",
+    "manager": null,
+    "cik": "0001086483"
+  },
+  {
+    "company": "Eastern Capital LTD",
+    "manager": null,
+    "cik": "0001408408"
+  },
+  {
+    "company": "WOLVERINE ASSET MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001279891"
+  },
+  {
+    "company": "Russell Investments Group, Ltd.",
+    "manager": null,
+    "cik": "0001692234"
+  },
+  {
+    "company": "Ionic Ventures, LLC",
+    "manager": null,
+    "cik": "0001769419"
+  },
+  {
+    "company": "Motley Fool Asset Management LLC",
+    "manager": null,
+    "cik": "0001512814"
+  },
+  {
+    "company": "SPRUCE HOUSE INVESTMENT MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001543170"
+  },
+  {
+    "company": "FRAZIER MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001032165"
+  },
+  {
+    "company": "TIGER MANAGEMENT L.L.C.",
+    "manager": null,
+    "cik": "0001027451"
+  },
+  {
+    "company": "Vivo Capital VIII, LLC",
+    "manager": null,
+    "cik": "0001618789"
+  },
+  {
+    "company": "FIDELITY SALEM STREET TRUST - Fidelity Small Cap Index Fund",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "1832 Asset Management L.P.",
+    "manager": null,
+    "cik": "0000944388"
+  },
+  {
+    "company": "HighTower Advisors, LLC",
+    "manager": null,
+    "cik": "0001462245"
+  },
+  {
+    "company": "HealthCor Management, L.P.",
+    "manager": null,
+    "cik": "0001343781"
+  },
+  {
+    "company": "VICTORY CAPITAL MANAGEMENT INC",
+    "manager": null,
+    "cik": "0001040188"
+  },
+  {
+    "company": "Tower Research Capital LLC (TRC)",
+    "manager": null,
+    "cik": "0001533421"
+  },
+  {
+    "company": "New Leaf Venture Partners, L.L.C.",
+    "manager": null,
+    "cik": "0001631614"
+  },
+  {
+    "company": "INTEGRATED CORE STRATEGIES (US) LLC",
+    "manager": null,
+    "cik": "0001319244"
+  },
+  {
+    "company": "O'SHAUGHNESSY ASSET MANAGEMENT, LLC",
+    "manager": null,
+    "cik": "0001423442"
+  },
+  {
+    "company": "Abu Dhabi Investment Authority",
+    "manager": null,
+    "cik": "0001362558"
+  },
+  {
+    "company": "BLUEFIN CAPITAL MANAGEMENT, LLC",
+    "manager": null,
+    "cik": "0001144208"
+  },
+  {
+    "company": "GLAXOSMITHKLINE PLC",
+    "manager": null,
+    "cik": "0001131399"
+  },
+  {
+    "company": "Greenhaven Road Investment Management, L.P.",
+    "manager": null,
+    "cik": "0001741129"
+  },
+  {
+    "company": "Fairmount Funds Management LLC",
+    "manager": null,
+    "cik": "0001802528"
+  },
+  {
+    "company": "FIDELITY CONTRAFUND - Fidelity Contrafund",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "Avidity Partners Management LP",
+    "manager": null,
+    "cik": "0001791827"
+  },
+  {
+    "company": "Bleichroeder LP",
+    "manager": null,
+    "cik": "0001781002"
+  },
+  {
+    "company": "WEDBUSH SECURITIES INC",
+    "manager": null,
+    "cik": "0001142495"
+  },
+  {
+    "company": "SEQUOIA FUND INC - SEQUOIA FUND INC",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "HIGHBRIDGE CAPITAL MANAGEMENT LLC",
+    "manager": "Glenn Russell Dubin",
+    "cik": "0000919185"
+  },
+  {
+    "company": "Route One Investment Company, L.P.",
+    "manager": null,
+    "cik": "0001495650"
+  },
+  {
+    "company": "THIEL PETER",
+    "manager": null,
+    "cik": "0001211060"
+  },
+  {
+    "company": "SEMPER AUGUSTUS INVESTMENTS GROUP LLC",
+    "manager": null,
+    "cik": "0001115373"
+  },
+  {
+    "company": "iSHARES TRUST - iShares Micro-Cap ETF",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "Karpus Management, Inc.",
+    "manager": "George Karpus",
+    "cik": "0001048703"
+  },
+  {
+    "company": "MILLER VALUE PARTNERS, LLC",
+    "manager": null,
+    "cik": "0001135778"
+  },
+  {
+    "company": "GREENOAKS CAPITAL PARTNERS LLC",
+    "manager": null,
+    "cik": "0001840735"
+  },
+  {
+    "company": "OPKO HEALTH, INC.",
+    "manager": null,
+    "cik": "0000944809"
+  },
+  {
+    "company": "ETF MANAGERS GROUP, LLC",
+    "manager": null,
+    "cik": "0001645173"
+  },
+  {
+    "company": "Engaged Capital LLC",
+    "manager": "Glenn W. Welling",
+    "cik": "0001559771"
+  },
+  {
+    "company": "Mirae Asset Global Investments Co., Ltd.",
+    "manager": null,
+    "cik": "0001569395"
+  },
+  {
+    "company": "AMC ENTERTAINMENT HOLDINGS, INC.",
+    "manager": null,
+    "cik": "0001411579"
+  },
+  {
+    "company": "Bulldog Investors, LLP",
+    "manager": "Phillip Goldstein, Andrew Dakos And Steven Samuels",
+    "cik": "0001504304"
+  },
+  {
+    "company": "KING STREET CAPITAL MANAGEMENT, L.P.",
+    "manager": "Brian Higgins, Francis Biondi",
+    "cik": "0001218199"
+  },
+  {
+    "company": "Soroban Capital Partners LP",
+    "manager": null,
+    "cik": "0001517857"
+  },
+  {
+    "company": "CANTOR FITZGERALD, L. P.",
+    "manager": null,
+    "cik": "0001024896"
+  },
+  {
+    "company": "Jefferies Financial Group Inc.",
+    "manager": null,
+    "cik": "0000096223"
+  },
+  {
+    "company": "FEDERATED HERMES, INC.",
+    "manager": null,
+    "cik": "0001056288"
+  },
+  {
+    "company": "Paradigm Biocapital Advisors LP",
+    "manager": null,
+    "cik": "0001855655"
+  },
+  {
+    "company": "Jericho Capital Asset Management L.P.",
+    "manager": null,
+    "cik": "0001525234"
+  },
+  {
+    "company": "VOYA INVESTMENT MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001068837"
+  },
+  {
+    "company": "FIDELITY CONCORD STREET TRUST - Fidelity Nasdaq Composite Index Fund",
+    "manager": null,
+    "cik": null
+  },
+  {
+    "company": "CAXTON ASSOCIATES LP",
+    "manager": null,
+    "cik": "0000872573"
+  },
+  {
+    "company": "Bain Capital Life Sciences Fund, L.P.",
+    "manager": null,
+    "cik": "0001687968"
+  },
+  {
+    "company": "CANNELL CAPITAL LLC",
+    "manager": null,
+    "cik": "0001058854"
+  },
+  {
+    "company": "HAYMAN CAPITAL MANAGEMENT, L.P.",
+    "manager": "Kyle Bass",
+    "cik": "0001420192"
+  },
+  {
+    "company": "B. Riley Financial, Inc.",
+    "manager": null,
+    "cik": "0001464790"
+  },
+  {
+    "company": "SOROS CAPITAL MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0001748240"
+  },
+  {
+    "company": "Brevan Howard Capital Management LP",
+    "manager": null,
+    "cik": "0001512857"
+  },
+  {
+    "company": "Luxor Capital Group, LP",
+    "manager": "Christian Alexander Leone",
+    "cik": "0001316580"
+  },
+  {
+    "company": "Slate Path Capital LP",
+    "manager": null,
+    "cik": "0001559706"
+  },
+  {
+    "company": "Nikko Asset Management Americas, Inc.",
+    "manager": null,
+    "cik": "0001480751"
+  },
+  {
+    "company": "Blackstone Holdings III L.P.",
+    "manager": null,
+    "cik": "0001404073"
+  },
+  {
+    "company": "INVESCO QQQ TRUST, SERIES 1",
+    "manager": null,
+    "cik": "0001067839"
+  },
+  {
+    "company": "Winton Capital Group Ltd",
+    "manager": null,
+    "cik": "0001612063"
+  },
+  {
+    "company": "Gates Capital Management, Inc.",
+    "manager": null,
+    "cik": "0001312908"
+  },
+  {
+    "company": "Ensign Peak Advisors, Inc",
+    "manager": null,
+    "cik": "0001454984"
+  },
+  {
+    "company": "EAGLE CAPITAL MANAGEMENT LLC",
+    "manager": null,
+    "cik": "0000945631"
+  },
+  {
+    "company": "MACQUARIE GROUP LTD",
+    "manager": null,
+    "cik": "0001418333"
+  },
+  {
+    "company": "Cubist Systematic Strategies, LLC",
+    "manager": null,
+    "cik": "0001603465"
+  },
+  {
+    "company": "BRIDGEWAY CAPITAL MANAGEMENT INC",
+    "manager": null,
+    "cik": "0001107261"
+  },
+  {
+    "company": "DISCOVERY CAPITAL MANAGEMENT, LLC / CT",
+    "manager": "Rob Citron",
+    "cik": "0001389507"
+  },
+  {
+    "company": "CEDAR ROCK CAPITAL LTD",
+    "manager": null,
+    "cik": "0001315765"
+  },
+  {
+    "company": "Park West Asset Management LLC",
+    "manager": null,
+    "cik": "0001386928"
+  },
+  {
+    "company": "TORONTO DOMINION BANK",
+    "manager": null,
+    "cik": "0000947263"
+  },
+  {
+    "company": "HAP Trading, LLC",
+    "manager": null,
+    "cik": "0001049854"
+  },
+  {
+    "company": "Kynam Capital Management, LP",
+    "manager": null,
+    "cik": "0001907884"
+  }
+]
