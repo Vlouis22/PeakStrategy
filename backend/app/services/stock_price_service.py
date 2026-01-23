@@ -37,6 +37,8 @@ class StockPriceService:
         self._alpha_vantage_min_interval = 12  # 12 seconds between calls (5/min limit)
         self._fetch_lock = threading.Lock()
         self._pending_fetches: Dict[str, tuple] = {}  # Maps symbol -> (event, result)
+        self._alpha_vantage_lock = threading.Lock()  # Global lock for Alpha Vantage rate limiting
+        self._max_alpha_vantage_per_batch = 3  # Limit AV calls per request to avoid long waits
         logger.info("StockPriceService initialized with RedisService")
     
     def _get_price_cache_key(self, symbol: str) -> str:
@@ -208,8 +210,12 @@ class StockPriceService:
             failed_symbols = [s for s in symbols if results.get(s) is None]
             
             if failed_symbols:
-                logger.info(f"Falling back to Alpha Vantage for {len(failed_symbols)} symbols")
-                for symbol in failed_symbols:
+                # Limit Alpha Vantage calls to avoid long waits
+                symbols_to_try = failed_symbols[:self._max_alpha_vantage_per_batch]
+                if len(failed_symbols) > self._max_alpha_vantage_per_batch:
+                    logger.info(f"Limiting Alpha Vantage to {self._max_alpha_vantage_per_batch} of {len(failed_symbols)} symbols")
+                
+                for symbol in symbols_to_try:
                     av_price = self._fetch_from_alpha_vantage(symbol)
                     if av_price is not None:
                         results[symbol] = av_price
@@ -279,21 +285,33 @@ class StockPriceService:
         
         return results
     
-    def _wait_for_alpha_vantage_rate_limit(self):
-        """Wait if needed to respect Alpha Vantage rate limit (5 calls/minute)."""
-        current_time = time.time()
-        time_since_last_call = current_time - self._last_alpha_vantage_call
-        if time_since_last_call < self._alpha_vantage_min_interval:
-            wait_time = self._alpha_vantage_min_interval - time_since_last_call
-            logger.debug(f"Alpha Vantage: Waiting {wait_time:.1f}s for rate limit")
-            time.sleep(wait_time)
-        self._last_alpha_vantage_call = time.time()
+    def _wait_for_alpha_vantage_rate_limit(self) -> bool:
+        """
+        Wait if needed to respect Alpha Vantage rate limit (5 calls/minute).
+        Uses a global lock to prevent multiple concurrent calls from bypassing the limit.
+        Returns True if wait was successful, False if we should skip this call.
+        """
+        with self._alpha_vantage_lock:
+            current_time = time.time()
+            time_since_last_call = current_time - self._last_alpha_vantage_call
+            if time_since_last_call < self._alpha_vantage_min_interval:
+                wait_time = self._alpha_vantage_min_interval - time_since_last_call
+                # Only wait a short time to not block the entire request
+                if wait_time > 5:
+                    logger.debug(f"Alpha Vantage: Skipping {wait_time:.1f}s wait to avoid blocking")
+                    return False
+                logger.debug(f"Alpha Vantage: Waiting {wait_time:.1f}s for rate limit")
+                time.sleep(wait_time)
+            self._last_alpha_vantage_call = time.time()
+            return True
 
     def _fetch_from_alpha_vantage(self, symbol: str) -> Optional[float]:
         """Fetch stock price from Alpha Vantage as fallback."""
         start_time = time.time()
         try:
-            self._wait_for_alpha_vantage_rate_limit()
+            if not self._wait_for_alpha_vantage_rate_limit():
+                logger.debug(f"Alpha Vantage: Skipping {symbol} due to rate limit")
+                return None
             
             url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={self.alpha_vantage_key}"
             response = requests.get(url, timeout=10)
@@ -346,7 +364,9 @@ class StockPriceService:
         """Fetch both price and previous close from Alpha Vantage."""
         start_time = time.time()
         try:
-            self._wait_for_alpha_vantage_rate_limit()
+            if not self._wait_for_alpha_vantage_rate_limit():
+                logger.debug(f"Alpha Vantage: Skipping full data for {symbol} due to rate limit")
+                return None
             
             url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={self.alpha_vantage_key}"
             response = requests.get(url, timeout=10)
