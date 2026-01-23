@@ -1,0 +1,42 @@
+modules = ["nodejs-20", "web", "python-3.11"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+FLASK_SECRET_KEY = "dev-secret-key-for-testing"
+FLASK_ENV = "development"
+FIREBASE_SERVICE_ACCOUNT_PATH = "./service-account-key.json"
+CORS_ORIGINS = "[\"http://localhost:5000\", \"https://*.replit.dev\", \"*\"]"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Frontend"
+
+[[workflows.workflow]]
+name = "Frontend"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd peakstrategy-frontend && npm run dev"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 5000
+externalPort = 80

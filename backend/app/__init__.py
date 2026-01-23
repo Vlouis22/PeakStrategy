@@ -15,7 +15,7 @@ def create_app(config_name: str = None) -> Flask:
     
     # ✅ Configure CORS FIRST, before any other imports
     CORS(app, 
-         origins=["http://localhost:5173"], 
+         origins=["*"], 
          supports_credentials=True, 
          allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'],
          methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],

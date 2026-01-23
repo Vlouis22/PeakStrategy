@@ -7,7 +7,7 @@ app = create_app(os.getenv('FLASK_ENV', 'default'))
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5001))
     app.run(
-        host=os.getenv('HOST', '0.0.0.0'),
+        host=os.getenv('HOST', 'localhost'),
         port=port,
         debug=app.config['DEBUG']
     )
