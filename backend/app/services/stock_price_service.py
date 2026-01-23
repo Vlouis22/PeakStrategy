@@ -147,55 +147,108 @@ class StockPriceService:
         return price
     
     def get_prices(self, symbols: List[str], use_cache: bool = True) -> Dict[str, Optional[float]]:
-        """Get multiple stock prices with caching - optimized to minimize API calls."""
+        """Get multiple stock prices with two-tier caching and stale-while-revalidate."""
         symbols = list(set(s.upper().strip() for s in symbols))
         
         results = {}
         symbols_to_fetch = []
+        stale_symbols = []  # Symbols that have stale data but should be refreshed
         
-        for symbol in symbols:
-            if use_cache:
+        if use_cache:
+            # Use batch get for efficiency
+            cache_keys = [self._get_price_cache_key(s) for s in symbols]
+            cached_data = self.redis_service.get_multi(cache_keys)
+            
+            for symbol in symbols:
                 cache_key = self._get_price_cache_key(symbol)
-                cached_data = self.redis_service.get(cache_key)
+                data = cached_data.get(cache_key)
                 
-                if cached_data:
-                    timestamp_str = cached_data.get("timestamp")
-                    if timestamp_str:
+                if data:
+                    timestamp_str = data.get("timestamp")
+                    price = data.get("price")
+                    
+                    if timestamp_str and price is not None:
                         try:
                             cached_time = datetime.fromisoformat(timestamp_str)
                             age = (datetime.now() - cached_time).total_seconds()
+                            
                             if age < self.cache_duration_seconds:
-                                price = cached_data.get("price")
-                                if price is not None:
-                                    results[symbol] = price
-                                    api_metrics_service.record_api_call(
-                                        service_name="stock_price",
-                                        success=True,
-                                        response_time_ms=0.1,
-                                        cached=True
-                                    )
-                                    continue
+                                # Fresh cache hit
+                                results[symbol] = price
+                                api_metrics_service.record_api_call(
+                                    service_name="stock_price",
+                                    success=True,
+                                    response_time_ms=0.1,
+                                    cached=True
+                                )
+                                continue
+                            elif age < self.cache_duration_seconds * 2:
+                                # Stale but usable - return immediately, refresh in background
+                                results[symbol] = price
+                                stale_symbols.append(symbol)
+                                api_metrics_service.record_api_call(
+                                    service_name="stock_price",
+                                    success=True,
+                                    response_time_ms=0.1,
+                                    cached=True
+                                )
+                                continue
                         except Exception as e:
                             logger.warning(f"Error parsing cache timestamp for {symbol}: {e}")
-            symbols_to_fetch.append(symbol)
+                
+                symbols_to_fetch.append(symbol)
+        else:
+            symbols_to_fetch = symbols
         
+        # Fetch missing symbols synchronously
         if symbols_to_fetch:
             logger.info(f"Fetching {len(symbols_to_fetch)} symbols: {symbols_to_fetch}")
             fetched_prices = self._batch_fetch_prices(symbols_to_fetch)
             
+            # Batch cache the results
+            cache_items = {}
             for symbol, price in fetched_prices.items():
                 if price is not None and price > 0:
                     cache_key = self._get_price_cache_key(symbol)
-                    cache_data = {
+                    cache_items[cache_key] = {
                         "price": price,
                         "timestamp": datetime.now().isoformat(),
                         "symbol": symbol
                     }
-                    self.redis_service.set(cache_key, cache_data, self.cache_duration_seconds)
+            
+            if cache_items:
+                self.redis_service.set_multi(cache_items, self.cache_duration_seconds)
             
             results.update(fetched_prices)
         
+        # Refresh stale symbols in background (non-blocking)
+        if stale_symbols:
+            self._refresh_stale_symbols_background(stale_symbols)
+        
         return results
+    
+    def _refresh_stale_symbols_background(self, symbols: List[str]):
+        """Refresh stale cache entries in background thread."""
+        def do_refresh():
+            try:
+                fetched_prices = self._batch_fetch_prices(symbols)
+                cache_items = {}
+                for symbol, price in fetched_prices.items():
+                    if price is not None and price > 0:
+                        cache_key = self._get_price_cache_key(symbol)
+                        cache_items[cache_key] = {
+                            "price": price,
+                            "timestamp": datetime.now().isoformat(),
+                            "symbol": symbol
+                        }
+                if cache_items:
+                    self.redis_service.set_multi(cache_items, self.cache_duration_seconds)
+                    logger.debug(f"Background refresh completed for {len(cache_items)} symbols")
+            except Exception as e:
+                logger.error(f"Background refresh failed: {e}")
+        
+        thread = threading.Thread(target=do_refresh, daemon=True)
+        thread.start()
     
     def _batch_fetch_prices(self, symbols: List[str]) -> Dict[str, Optional[float]]:
         """Batch fetch with deduplication - single entry point for external API calls."""

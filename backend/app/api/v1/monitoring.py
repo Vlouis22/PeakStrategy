@@ -23,7 +23,7 @@ def health_check():
         "services": {
             "api": "healthy",
             "redis": redis_service.get_connection_info(),
-            "redis_connected": not redis_service._use_memory_cache
+            "redis_connected": redis_service.client is not None
         }
     }
     
@@ -54,14 +54,16 @@ def get_metrics():
 
 @monitoring_bp.route('/cache/stats', methods=['GET'])
 def get_cache_stats():
-    """Get cache statistics."""
+    """Get cache statistics including L1 (local) and L2 (Redis) tiers."""
     try:
         redis_service = RedisService.get_instance()
         
         stats = {
             "connection_type": redis_service.get_connection_info(),
-            "using_memory_fallback": redis_service._use_memory_cache,
+            "redis_connected": redis_service.client is not None,
             "redis_type": redis_service._redis_type,
+            "l1_cache": redis_service.get_l1_stats(),
+            "l1_ttl_seconds": redis_service._l1_ttl,
             "timestamp": datetime.utcnow().isoformat()
         }
         
@@ -91,7 +93,8 @@ def get_status():
             "uptime_seconds": summary.get("uptime_seconds", 0),
             "total_api_calls": summary.get("total_api_calls", 0),
             "cache_hit_rate": round(summary.get("overall_cache_hit_rate", 0), 2),
-            "redis_status": "connected" if not redis_service._use_memory_cache else "fallback",
+            "redis_status": "connected" if redis_service.client is not None else "l1_only",
+            "l1_cache_stats": redis_service.get_l1_stats(),
             "pending_requests": summary.get("pending_requests", 0),
             "services_tracked": summary.get("services", []),
             "alpha_vantage_configured": bool(os.getenv("ALPHA_VANTAGE_API_KEY")),
