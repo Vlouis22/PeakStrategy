@@ -22,20 +22,23 @@ def require_auth():
 def get_profile():
     """Get the current user's profile."""
     try:
-        # Get user ID from the request (set by auth middleware)
+        # Get user info from the request (set by auth middleware)
         user_id = request.user_id
+        user_email = getattr(request, 'user_email', '')
         
-        user_service = UserService()
-        profile = user_service.get_user_profile(user_id)
+        # Return profile from the already-verified token data
+        # This avoids additional Firestore calls
+        profile = {
+            'uid': user_id,
+            'email': user_email,
+            'display_name': user_email.split('@')[0] if user_email else '',
+            'status': 'active'
+        }
         
         return jsonify({
             'success': True,
             'data': profile
         }), 200
-        
-    except ResourceNotFoundError as e:
-        current_app.logger.warning(f"User profile not found: {user_id}")
-        raise e
         
     except Exception as e:
         current_app.logger.error(f"Error getting user profile: {str(e)}")
