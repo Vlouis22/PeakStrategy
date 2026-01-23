@@ -5,12 +5,14 @@ from datetime import datetime, timedelta
 import threading
 import time
 import logging
+import random
 from typing import Dict, List, Optional
 import os
 import requests
 
 from app.services.redis_service import RedisService
 from app.services.api_metrics_service import api_metrics_service
+from app.services.http_config import http_config
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +41,17 @@ class StockPriceService:
         self._pending_fetches: Dict[str, tuple] = {}  # Maps symbol -> (event, result)
         self._alpha_vantage_lock = threading.Lock()  # Global lock for Alpha Vantage rate limiting
         self._max_alpha_vantage_per_batch = 3  # Limit AV calls per request to avoid long waits
+        self._max_retries = 3  # Max retries with exponential backoff
         logger.info("StockPriceService initialized with RedisService")
+    
+    def _create_yfinance_session(self) -> requests.Session:
+        """Create a new session with rotated User-Agent for yfinance requests."""
+        session = requests.Session()
+        session.headers.update(http_config.get_headers())
+        proxies = http_config.get_proxies()
+        if proxies:
+            session.proxies.update(proxies)
+        return session
     
     def _get_price_cache_key(self, symbol: str) -> str:
         return f"stock_price:{symbol}"
@@ -289,54 +301,74 @@ class StockPriceService:
         return results
     
     def _try_yfinance_batch(self, symbols: List[str]) -> Dict[str, Optional[float]]:
-        """Try to fetch prices using yfinance batch download."""
+        """Try to fetch prices using yfinance batch download with retry and User-Agent rotation."""
         results = {}
         
-        try:
-            with self._fetch_lock:
-                tickers = yf.download(
-                    " ".join(symbols),
-                    period="1d",
-                    interval="1m",
-                    group_by='ticker',
-                    progress=False,
-                    auto_adjust=True
-                )
+        for attempt in range(self._max_retries):
+            try:
+                # Create fresh session with rotated User-Agent for each attempt
+                session = self._create_yfinance_session()
                 
-                if tickers is not None and not tickers.empty:
-                    for symbol in symbols:
-                        try:
-                            if len(symbols) == 1:
-                                price = tickers['Close'].iloc[-1]
-                            elif symbol in tickers:
-                                price = tickers[symbol]['Close'].iloc[-1]
-                            else:
-                                continue
-                                
-                            if not pd.isna(price):
-                                results[symbol] = float(price)
-                                self._yfinance_failed = False
-                        except Exception as e:
-                            logger.debug(f"Error extracting {symbol} from batch: {e}")
-                else:
-                    logger.warning("yfinance batch download returned empty data")
-                    self._yfinance_failed = True
+                with self._fetch_lock:
+                    tickers = yf.download(
+                        " ".join(symbols),
+                        period="1d",
+                        interval="1m",
+                        group_by='ticker',
+                        progress=False,
+                        auto_adjust=True,
+                        session=session
+                    )
                     
-        except Exception as e:
-            error_str = str(e)
-            if '429' in error_str or 'Too Many Requests' in error_str:
-                self._yfinance_failed = True
-                api_metrics_service.record_api_call(
-                    service_name="yfinance",
-                    success=False,
-                    response_time_ms=0,
-                    rate_limited=True
-                )
-                logger.warning("yfinance rate limited, switching to Alpha Vantage")
-            else:
-                logger.error(f"yfinance batch error: {e}")
+                    if tickers is not None and not tickers.empty:
+                        for symbol in symbols:
+                            try:
+                                if len(symbols) == 1:
+                                    price = tickers['Close'].iloc[-1]
+                                elif symbol in tickers:
+                                    price = tickers[symbol]['Close'].iloc[-1]
+                                else:
+                                    continue
+                                    
+                                if not pd.isna(price):
+                                    results[symbol] = float(price)
+                                    self._yfinance_failed = False
+                            except Exception as e:
+                                logger.debug(f"Error extracting {symbol} from batch: {e}")
+                        
+                        # Success - return results
+                        if results:
+                            return results
+                    else:
+                        logger.warning(f"yfinance batch download returned empty data (attempt {attempt + 1}/{self._max_retries})")
+                        
+            except Exception as e:
+                error_str = str(e)
+                if '429' in error_str or 'Too Many Requests' in error_str or 'rate' in error_str.lower():
+                    self._yfinance_failed = True
+                    api_metrics_service.record_api_call(
+                        service_name="yfinance",
+                        success=False,
+                        response_time_ms=0,
+                        rate_limited=True
+                    )
+                    logger.warning(f"yfinance rate limited (attempt {attempt + 1}/{self._max_retries}), will retry with new User-Agent")
+                else:
+                    logger.error(f"yfinance batch error: {e}")
+            
+            # Exponential backoff before retry
+            if attempt < self._max_retries - 1:
+                backoff = (2 ** attempt) + (random.random() * 0.5)
+                logger.debug(f"Retrying yfinance in {backoff:.1f}s (attempt {attempt + 2}/{self._max_retries})")
+                time.sleep(backoff)
+        
+        # All retries failed
+        if not results:
+            self._yfinance_failed = True
+            logger.warning("yfinance failed after all retries, switching to Alpha Vantage")
         
         return results
+    
     
     def _wait_for_alpha_vantage_rate_limit(self) -> bool:
         """
@@ -367,7 +399,8 @@ class StockPriceService:
                 return None
             
             url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={self.alpha_vantage_key}"
-            response = requests.get(url, timeout=10)
+            request_kwargs = http_config.get_request_kwargs()
+            response = requests.get(url, **request_kwargs)
             data = response.json()
             
             elapsed_ms = (time.time() - start_time) * 1000
@@ -422,7 +455,8 @@ class StockPriceService:
                 return None
             
             url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={self.alpha_vantage_key}"
-            response = requests.get(url, timeout=10)
+            request_kwargs = http_config.get_request_kwargs()
+            response = requests.get(url, **request_kwargs)
             data = response.json()
             
             elapsed_ms = (time.time() - start_time) * 1000
@@ -467,26 +501,33 @@ class StockPriceService:
         """Fetch price with yfinance -> Alpha Vantage fallback, using deduplication."""
         def do_fetch():
             if not self._yfinance_failed:
-                try:
-                    ticker = yf.Ticker(symbol)
-                    info = ticker.info
-                    price = (
-                        info.get('currentPrice') or 
-                        info.get('regularMarketPrice') or 
-                        info.get('previousClose')
-                    )
-                    
-                    if price is not None:
-                        self._yfinance_failed = False
-                        return float(price)
+                for attempt in range(self._max_retries):
+                    try:
+                        session = self._create_yfinance_session()
+                        ticker = yf.Ticker(symbol, session=session)
+                        info = ticker.info
+                        price = (
+                            info.get('currentPrice') or 
+                            info.get('regularMarketPrice') or 
+                            info.get('previousClose')
+                        )
                         
-                except Exception as e:
-                    error_str = str(e)
-                    if '429' in error_str or 'Too Many Requests' in error_str:
-                        self._yfinance_failed = True
-                        logger.warning(f"yfinance rate limited for {symbol}")
-                    else:
-                        logger.error(f"yfinance error for {symbol}: {e}")
+                        if price is not None:
+                            self._yfinance_failed = False
+                            return float(price)
+                            
+                    except Exception as e:
+                        error_str = str(e)
+                        if '429' in error_str or 'Too Many Requests' in error_str or 'rate' in error_str.lower():
+                            logger.warning(f"yfinance rate limited for {symbol} (attempt {attempt + 1}/{self._max_retries})")
+                            if attempt < self._max_retries - 1:
+                                backoff = (2 ** attempt) + (random.random() * 0.5)
+                                time.sleep(backoff)
+                                continue
+                            self._yfinance_failed = True
+                        else:
+                            logger.error(f"yfinance error for {symbol}: {e}")
+                            break
             
             return self._fetch_from_alpha_vantage(symbol)
         
@@ -558,30 +599,40 @@ class StockPriceService:
                     data[symbol] = av_data
                 continue
             
-            try:
-                ticker = yf.Ticker(symbol)
-                info = ticker.info
-                
-                price = info.get("regularMarketPrice") or info.get('currentPrice')
-                prev_close = info.get("regularMarketPreviousClose")
-                
-                if price and prev_close:
-                    data[symbol] = {
-                        "price": float(price),
-                        "previous_close": float(prev_close)
-                    }
-                    self._yfinance_failed = False
-                else:
-                    av_data = self._fetch_full_data_from_alpha_vantage(symbol)
-                    if av_data:
-                        data[symbol] = av_data
-                        
-            except Exception as e:
-                error_str = str(e)
-                if '429' in error_str or 'Too Many Requests' in error_str:
-                    self._yfinance_failed = True
-                    logger.warning(f"yfinance rate limited, using Alpha Vantage")
+            fetched = False
+            for attempt in range(self._max_retries):
+                try:
+                    session = self._create_yfinance_session()
+                    ticker = yf.Ticker(symbol, session=session)
+                    info = ticker.info
                     
+                    price = info.get("regularMarketPrice") or info.get('currentPrice')
+                    prev_close = info.get("regularMarketPreviousClose")
+                    
+                    if price and prev_close:
+                        data[symbol] = {
+                            "price": float(price),
+                            "previous_close": float(prev_close)
+                        }
+                        self._yfinance_failed = False
+                        fetched = True
+                        break
+                    else:
+                        break
+                            
+                except Exception as e:
+                    error_str = str(e)
+                    if '429' in error_str or 'Too Many Requests' in error_str or 'rate' in error_str.lower():
+                        logger.warning(f"yfinance rate limited for {symbol} (attempt {attempt + 1}/{self._max_retries})")
+                        if attempt < self._max_retries - 1:
+                            backoff = (2 ** attempt) + (random.random() * 0.5)
+                            time.sleep(backoff)
+                            continue
+                        self._yfinance_failed = True
+                    else:
+                        break
+            
+            if not fetched:
                 av_data = self._fetch_full_data_from_alpha_vantage(symbol)
                 if av_data:
                     data[symbol] = av_data
