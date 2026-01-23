@@ -3,11 +3,14 @@ Authentication middleware for PeakStrategy API.
 Includes both WSGI middleware class and route decorator.
 """
 import re
+import logging
 from functools import wraps
 from flask import request, g, current_app
 
 from ..utils.exceptions import AuthError
 from ..services.firebase_service import FirebaseService
+
+logger = logging.getLogger(__name__)
 
 class AuthMiddleware:
     """

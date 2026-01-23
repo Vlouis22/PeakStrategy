@@ -1,6 +1,6 @@
 from typing import Dict, Any
 import firebase_admin.firestore as firestore
-from ..utils.exceptions import ValidationError, ExternalServiceError
+from ..utils.exceptions import ValidationError, ExternalServiceError, AuthError
 from .firebase_service import FirebaseService
 import os
 import requests
@@ -98,26 +98,22 @@ class AuthService:
             
             if 'error' in result:
                 error_msg = result['error']['message'].replace('_', ' ').capitalize()
-                if result['error']['message'] == 'EMAIL_NOT_FOUND':
-                    raise ValidationError(
-                        {"email": ["No account found with this email"]},
-                        "Email not found"
-                    )
-                elif result['error']['message'] == 'INVALID_PASSWORD':
-                    raise ValidationError(
-                        {"password": ["Incorrect password"]},
-                        "Invalid password"
-                    )
-                elif result['error']['message'] == 'USER_DISABLED':
-                    raise ValidationError(
-                        {"email": ["This account has been disabled"]},
-                        "Account disabled"
-                    )
+                firebase_error = result['error']['message']
+                if firebase_error == 'EMAIL_NOT_FOUND':
+                    from ..utils.exceptions import AuthError
+                    raise AuthError("No account found with this email")
+                elif firebase_error == 'INVALID_PASSWORD':
+                    from ..utils.exceptions import AuthError
+                    raise AuthError("Incorrect password")
+                elif firebase_error == 'INVALID_LOGIN_CREDENTIALS':
+                    from ..utils.exceptions import AuthError
+                    raise AuthError("Invalid email or password")
+                elif firebase_error == 'USER_DISABLED':
+                    from ..utils.exceptions import AuthError
+                    raise AuthError("This account has been disabled")
                 else:
-                    raise ValidationError(
-                        {"general": [error_msg]},
-                        error_msg
-                    )
+                    from ..utils.exceptions import AuthError
+                    raise AuthError(error_msg)
             
             # Get user uid from the result
             uid = result['localId']
@@ -125,10 +121,9 @@ class AuthService:
             # Generate a custom token for the client
             custom_token = self.firebase.create_custom_token(uid)
             
-            # Get user from Firestore
-            user_profile = self._get_user_profile(uid)
-            
-            user_data = user_profile or {
+            # Use user data from Firebase response directly
+            # Skip Firestore lookup to avoid potential blocking issues
+            user_data = {
                 'uid': uid,
                 'email': email,
                 'display_name': result.get('displayName', '')
@@ -143,6 +138,9 @@ class AuthService:
         
         except ValidationError:
             # Re-raise validation errors
+            raise
+        except AuthError:
+            # Re-raise auth errors
             raise
         except Exception as e:
             raise ExternalServiceError("Firebase", str(e))

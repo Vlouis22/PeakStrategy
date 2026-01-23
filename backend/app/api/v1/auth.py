@@ -1,17 +1,11 @@
 from flask import Blueprint, request, jsonify, current_app
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from ...services.auth_service import AuthService
 from ...utils.exceptions import AuthError, ValidationError
 
 # Create blueprint
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
-# Rate limiting for auth endpoints
-limiter = Limiter(key_func=get_remote_address)
-
 @auth_bp.route('/signup', methods=['POST'])
-@limiter.limit("10 per minute")
 def signup():
     """User registration endpoint."""
     try:
@@ -46,7 +40,6 @@ def signup():
         }), 500
 
 @auth_bp.route('/login', methods=['POST'])
-@limiter.limit("20 per minute")
 def login():
     """User login endpoint."""
     try:
