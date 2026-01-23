@@ -462,15 +462,16 @@ def get_all_portfolios_performance():
             
             portfolios.append(portfolio)
         
-        # Get all prices at once - WITH PRICE CACHING
+        # Get all prices at once - WITH PRICE CACHING (15 min TTL)
         symbols_list = list(all_symbols)
+        price_cache_ttl = 900  # 15 minutes
         
         # Try to get cached prices first
         cached_prices = {}
         for symbol in symbols_list:
             price_key = f"price:{symbol}"
             price_data = redis_service.get(price_key)
-            if price_data:
+            if price_data and price_data.get('price') is not None:
                 cached_prices[symbol] = price_data.get('price')
         
         # Determine which symbols need fresh prices
@@ -480,13 +481,15 @@ def get_all_portfolios_performance():
             # Fetch only missing prices
             fresh_prices = stock_price_service.get_prices(symbols_to_fetch)
             
-            # Cache the new prices with 60-second TTL
+            # Cache ONLY valid prices with 15-minute TTL
             for symbol, price in fresh_prices.items():
-                price_key = f"price:{symbol}"
-                redis_service.set(price_key, {'price': price, 'timestamp': datetime.utcnow().isoformat()}, ttl=60)
+                if price is not None and price > 0:
+                    price_key = f"price:{symbol}"
+                    redis_service.set(price_key, {'price': price, 'timestamp': datetime.utcnow().isoformat()}, ttl=price_cache_ttl)
             
-            # Merge cached and fresh prices
-            prices = {**cached_prices, **fresh_prices}
+            # Merge cached and fresh prices (only include valid fresh prices)
+            valid_fresh_prices = {k: v for k, v in fresh_prices.items() if v is not None and v > 0}
+            prices = {**cached_prices, **valid_fresh_prices}
         else:
             prices = cached_prices
         
@@ -510,11 +513,15 @@ def get_all_portfolios_performance():
                 portfolio_cost += cost_basis
                 
                 current_price = prices.get(symbol)
-                if current_price:
+                # Fallback to average cost if no price available (prevents $0 display)
+                if current_price and current_price > 0:
                     portfolio_value += shares * current_price
+                else:
+                    # Use average cost as fallback - better than showing $0
+                    portfolio_value += cost_basis
 
                 if symbol not in individual_prices:
-                    individual_prices[symbol] = current_price
+                    individual_prices[symbol] = current_price if current_price and current_price > 0 else avg_cost
             
             portfolio_change = portfolio_value - portfolio_cost
             portfolio_change_percent = (portfolio_change / portfolio_cost * 100) if portfolio_cost > 0 else 0

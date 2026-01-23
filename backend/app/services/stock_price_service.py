@@ -27,6 +27,8 @@ class StockPriceService:
         self.cache_duration_seconds = 900  # 15 minutes - longer cache to reduce Yahoo Finance API calls
         self.alpha_vantage_key = os.getenv('ALPHA_VANTAGE_API_KEY', 'demo')  # 'demo' works with limited symbols
         self._yfinance_failed = False  # Track if yfinance is failing (rate limited)
+        self._last_alpha_vantage_call = 0  # Track last AV call time for rate limiting
+        self._alpha_vantage_min_interval = 12  # 12 seconds between calls (5/min limit)
         print("🚀 Initializing StockPriceService with RedisService...")
     
     def _get_price_cache_key(self, symbol: str) -> str:
@@ -140,9 +142,22 @@ class StockPriceService:
         
         return results
     
+    def _wait_for_alpha_vantage_rate_limit(self):
+        """Wait if needed to respect Alpha Vantage rate limit (5 calls/minute)"""
+        current_time = time.time()
+        time_since_last_call = current_time - self._last_alpha_vantage_call
+        if time_since_last_call < self._alpha_vantage_min_interval:
+            wait_time = self._alpha_vantage_min_interval - time_since_last_call
+            print(f"Alpha Vantage: Waiting {wait_time:.1f}s for rate limit...")
+            time.sleep(wait_time)
+        self._last_alpha_vantage_call = time.time()
+
     def _fetch_from_alpha_vantage(self, symbol: str):
         """Fetch stock price from Alpha Vantage as fallback"""
         try:
+            # Respect rate limit
+            self._wait_for_alpha_vantage_rate_limit()
+            
             url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={self.alpha_vantage_key}"
             response = requests.get(url, timeout=10)
             data = response.json()
@@ -165,6 +180,9 @@ class StockPriceService:
     def _fetch_full_data_from_alpha_vantage(self, symbol: str) -> Optional[Dict[str, float]]:
         """Fetch both price and previous close from Alpha Vantage"""
         try:
+            # Respect rate limit
+            self._wait_for_alpha_vantage_rate_limit()
+            
             url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={self.alpha_vantage_key}"
             response = requests.get(url, timeout=10)
             data = response.json()
@@ -177,6 +195,10 @@ class StockPriceService:
                 if price > 0 and prev_close > 0:
                     print(f"Alpha Vantage: Got full data for {symbol}: price={price}, prev_close={prev_close}")
                     return {"price": price, "previous_close": prev_close}
+            
+            # Check for rate limit message
+            if 'Note' in data or 'Information' in data:
+                print(f"Alpha Vantage rate limit for {symbol}")
             
             return None
         except Exception as e:
