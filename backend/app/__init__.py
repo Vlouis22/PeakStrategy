@@ -17,12 +17,14 @@ def create_app(config_name: str = None) -> Flask:
     CORS(app, 
          origins=["*"], 
          supports_credentials=True, 
-         allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'],
+         allow_headers=['Content-Type', 'Authorization', 'X-Requested-With', 'X-Request-ID'],
          methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-         expose_headers=['Content-Type', 'Authorization'])
+         expose_headers=['Content-Type', 'Authorization', 'X-Request-ID', 'X-Response-Time'])
     
-    # Configure logging
-    _setup_logging(app)
+    # Configure structured logging with request tracing
+    from .services.logging_service import setup_logging, init_request_logging
+    setup_logging(app_name="peakstrategy", level=app.config.get('LOG_LEVEL', 'INFO'))
+    init_request_logging(app)
     
     # Initialize extensions
     from .extensions import firebase_service

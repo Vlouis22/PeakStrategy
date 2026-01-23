@@ -1,15 +1,18 @@
 # app/routes/portfolio.py
 from flask import Blueprint, request, jsonify
 from app.services.firebase_service import FirebaseService
-from app.services.redis_service import RedisService  # NEW
+from app.services.redis_service import RedisService
 from firebase_admin import firestore
 from datetime import datetime
 import uuid
+import logging
 from app.services.stock_price_service import stock_price_service
 from app.services.portfolio_projection_service import portfolio_projection_service
 from app.services.portfolio_daily_change_service import PortfolioDailyChangeService
+from app.services.cache_warming_service import cache_warming_service
 from google.cloud.firestore_v1.base_query import FieldFilter
 
+logger = logging.getLogger(__name__)
 
 portfolio_bp = Blueprint('portfolio', __name__, url_prefix='/api/v1/portfolios')
 portfolio_bp.url_map = False
@@ -29,7 +32,7 @@ def verify_token():
         decoded_token = auth.verify_id_token(token)
         return decoded_token['uid']
     except Exception as e:
-        print(f"Token verification error: {e}")
+        logger.warning(f"Token verification error: {e}")
         return None
 
 # ... keep your OPTIONS handlers as they are ...
@@ -465,6 +468,11 @@ def get_all_portfolios_performance():
         # Get all prices at once - WITH PRICE CACHING (15 min TTL)
         symbols_list = list(all_symbols)
         price_cache_ttl = 900  # 15 minutes
+        
+        # Record symbols for cache warming (popular symbols tracking)
+        if symbols_list:
+            cache_warming_service.record_symbol_access(symbols_list)
+            cache_warming_service.start_background_warming()
         
         # Try to get cached prices first
         cached_prices = {}
