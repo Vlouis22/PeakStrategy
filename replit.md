@@ -26,7 +26,7 @@ backend/                  # Flask API backend
       portfolios.py       # Portfolio endpoints
       monitoring.py       # Health check, metrics, status endpoints
     services/             # Business logic
-      stock_price_service.py  # Stock price fetching with dual providers
+      stock_price_service.py  # Stock price fetching with Yahoo Finance
       redis_service.py        # Upstash Redis caching with fallbacks
       api_metrics_service.py  # Centralized API metrics tracking
       logging_service.py      # Structured logging with request tracing
@@ -52,7 +52,6 @@ backend/                  # Flask API backend
 - `FIREBASE_SERVICE_ACCOUNT_PATH` - Path to Firebase service account JSON
 - `UPSTASH_REDIS_REST_URL` - Upstash Redis REST URL for caching
 - `UPSTASH_REDIS_REST_TOKEN` - Upstash Redis REST token
-- `ALPHA_VANTAGE_API_KEY` - Alpha Vantage API key for stock data (fallback provider)
 
 ## Running the Application
 
@@ -73,7 +72,7 @@ cd backend && python run.py
 - **Frontend**: React 19, Vite 7, TailwindCSS 4, React Router, Recharts
 - **Authentication**: Firebase Auth
 - **Backend**: Flask, Flask-CORS, Firebase Admin SDK
-- **Data**: Yahoo Finance (primary) + Alpha Vantage (fallback) for stock data
+- **Data**: Yahoo Finance for stock data
 - **Caching**: Upstash Redis (cloud) with in-memory fallback
 
 ## Backend Architecture
@@ -87,9 +86,8 @@ cd backend && python run.py
 - Request deduplication prevents concurrent API calls for same symbols
 - Cache warming service pre-warms frequently accessed symbols
 
-### Stock Price Providers
-- Primary: Yahoo Finance (yfinance)
-- Fallback: Alpha Vantage (12-second rate limiting for 5/min free tier)
+### Stock Price Provider
+- Yahoo Finance (yfinance) with User-Agent rotation and retry logic
 
 ### Monitoring Endpoints
 - `GET /api/v1/monitoring/health` - Health check
@@ -114,7 +112,6 @@ cd backend && python run.py
 - 2026-01-23: Backend scalability refactoring
   - Implemented request deduplication for stock price API calls
   - Added Upstash Redis integration for production caching
-  - Added Alpha Vantage as fallback stock data provider
   - Implemented structured logging with request tracing
   - Added API metrics service for tracking usage
   - Added cache warming service for popular symbols

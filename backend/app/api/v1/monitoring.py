@@ -97,7 +97,6 @@ def get_status():
             "l1_cache_stats": redis_service.get_l1_stats(),
             "pending_requests": summary.get("pending_requests", 0),
             "services_tracked": summary.get("services", []),
-            "alpha_vantage_configured": bool(os.getenv("ALPHA_VANTAGE_API_KEY")),
             "cache_warming": warming_stats,
             "timestamp": datetime.utcnow().isoformat()
         }

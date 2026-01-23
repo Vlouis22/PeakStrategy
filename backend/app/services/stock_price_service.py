@@ -30,19 +30,13 @@ class StockPriceService:
         return cls._instance
     
     def _init_service(self):
-        """Initialize Redis configuration"""
+        """Initialize service configuration"""
         self.redis_service = RedisService.get_instance()
         self.cache_duration_seconds = 900  # 15 minutes
-        self.alpha_vantage_key = os.getenv('ALPHA_VANTAGE_API_KEY', 'demo')
-        self._yfinance_failed = False
-        self._last_alpha_vantage_call = 0
-        self._alpha_vantage_min_interval = 12  # 12 seconds between calls (5/min limit)
         self._fetch_lock = threading.Lock()
         self._pending_fetches: Dict[str, tuple] = {}  # Maps symbol -> (event, result)
-        self._alpha_vantage_lock = threading.Lock()  # Global lock for Alpha Vantage rate limiting
-        self._max_alpha_vantage_per_batch = 3  # Limit AV calls per request to avoid long waits
         self._max_retries = 3  # Max retries with exponential backoff
-        logger.info("StockPriceService initialized with RedisService")
+        logger.info("StockPriceService initialized with RedisService (Yahoo Finance only)")
     
     def _create_yfinance_session(self) -> requests.Session:
         """Create a new session with rotated User-Agent for yfinance requests."""
@@ -68,26 +62,22 @@ class StockPriceService:
         
         with self._fetch_lock:
             if request_key in self._pending_fetches:
-                # Another request is already fetching this symbol - wait for it
                 event, _ = self._pending_fetches[request_key]
                 is_waiter = True
             else:
-                # First request for this symbol - create the fetch entry
                 event = threading.Event()
                 self._pending_fetches[request_key] = (event, None)
                 is_waiter = False
         
         if is_waiter:
-            # Wait for the first request to complete
             logger.debug(f"Waiting for pending fetch: {symbol}")
             event.wait(timeout=30)
             with self._fetch_lock:
                 entry = self._pending_fetches.get(request_key)
                 if entry:
-                    return entry[1]  # Return the result
+                    return entry[1]
                 return None
         
-        # This is the first request - do the actual fetch
         try:
             start_time = time.time()
             result = fetch_func()
@@ -100,15 +90,12 @@ class StockPriceService:
                 cached=False
             )
             
-            # Store result for waiters
             with self._fetch_lock:
                 self._pending_fetches[request_key] = (event, result)
             
             return result
         finally:
-            # Signal waiters and schedule cleanup
             event.set()
-            # Keep result available briefly for waiters, then clean up
             def cleanup():
                 time.sleep(1)
                 with self._fetch_lock:
@@ -145,7 +132,7 @@ class StockPriceService:
                     except Exception as e:
                         logger.warning(f"Error parsing cache timestamp for {symbol}: {e}")
         
-        price = self._fetch_price_with_fallback(symbol)
+        price = self._fetch_price(symbol)
         
         if price is not None and price > 0:
             cache_key = self._get_price_cache_key(symbol)
@@ -164,10 +151,9 @@ class StockPriceService:
         
         results = {}
         symbols_to_fetch = []
-        stale_symbols = []  # Symbols that have stale data but should be refreshed
+        stale_symbols = []
         
         if use_cache:
-            # Use batch get for efficiency
             cache_keys = [self._get_price_cache_key(s) for s in symbols]
             cached_data = self.redis_service.get_multi(cache_keys)
             
@@ -185,7 +171,6 @@ class StockPriceService:
                             age = (datetime.now() - cached_time).total_seconds()
                             
                             if age < self.cache_duration_seconds:
-                                # Fresh cache hit
                                 results[symbol] = price
                                 api_metrics_service.record_api_call(
                                     service_name="stock_price",
@@ -195,7 +180,6 @@ class StockPriceService:
                                 )
                                 continue
                             elif age < self.cache_duration_seconds * 2:
-                                # Stale but usable - return immediately, refresh in background
                                 results[symbol] = price
                                 stale_symbols.append(symbol)
                                 api_metrics_service.record_api_call(
@@ -212,12 +196,10 @@ class StockPriceService:
         else:
             symbols_to_fetch = symbols
         
-        # Fetch missing symbols synchronously
         if symbols_to_fetch:
             logger.info(f"Fetching {len(symbols_to_fetch)} symbols: {symbols_to_fetch}")
             fetched_prices = self._batch_fetch_prices(symbols_to_fetch)
             
-            # Batch cache the results
             cache_items = {}
             for symbol, price in fetched_prices.items():
                 if price is not None and price > 0:
@@ -233,7 +215,6 @@ class StockPriceService:
             
             results.update(fetched_prices)
         
-        # Refresh stale symbols in background (non-blocking)
         if stale_symbols:
             self._refresh_stale_symbols_background(stale_symbols)
         
@@ -263,28 +244,13 @@ class StockPriceService:
         thread.start()
     
     def _batch_fetch_prices(self, symbols: List[str]) -> Dict[str, Optional[float]]:
-        """Batch fetch with deduplication - single entry point for external API calls."""
+        """Batch fetch prices using Yahoo Finance."""
         results = {}
         start_time = time.time()
         
         try:
-            if not self._yfinance_failed:
-                yf_results = self._try_yfinance_batch(symbols)
-                results.update(yf_results)
-            
-            failed_symbols = [s for s in symbols if results.get(s) is None]
-            
-            if failed_symbols:
-                # Limit Alpha Vantage calls to avoid long waits
-                symbols_to_try = failed_symbols[:self._max_alpha_vantage_per_batch]
-                if len(failed_symbols) > self._max_alpha_vantage_per_batch:
-                    logger.info(f"Limiting Alpha Vantage to {self._max_alpha_vantage_per_batch} of {len(failed_symbols)} symbols")
-                
-                for symbol in symbols_to_try:
-                    av_price = self._fetch_from_alpha_vantage(symbol)
-                    if av_price is not None:
-                        results[symbol] = av_price
-                    
+            yf_results = self._try_yfinance_batch(symbols)
+            results.update(yf_results)
         except Exception as e:
             logger.error(f"Batch fetch failed: {e}")
         
@@ -306,7 +272,6 @@ class StockPriceService:
         
         for attempt in range(self._max_retries):
             try:
-                # Create fresh session with rotated User-Agent for each attempt
                 session = self._create_yfinance_session()
                 
                 with self._fetch_lock:
@@ -332,11 +297,9 @@ class StockPriceService:
                                     
                                 if not pd.isna(price):
                                     results[symbol] = float(price)
-                                    self._yfinance_failed = False
                             except Exception as e:
                                 logger.debug(f"Error extracting {symbol} from batch: {e}")
                         
-                        # Success - return results
                         if results:
                             return results
                     else:
@@ -345,7 +308,6 @@ class StockPriceService:
             except Exception as e:
                 error_str = str(e)
                 if '429' in error_str or 'Too Many Requests' in error_str or 'rate' in error_str.lower():
-                    self._yfinance_failed = True
                     api_metrics_service.record_api_call(
                         service_name="yfinance",
                         success=False,
@@ -356,180 +318,46 @@ class StockPriceService:
                 else:
                     logger.error(f"yfinance batch error: {e}")
             
-            # Exponential backoff before retry
             if attempt < self._max_retries - 1:
                 backoff = (2 ** attempt) + (random.random() * 0.5)
                 logger.debug(f"Retrying yfinance in {backoff:.1f}s (attempt {attempt + 2}/{self._max_retries})")
                 time.sleep(backoff)
         
-        # All retries failed
         if not results:
-            self._yfinance_failed = True
-            logger.warning("yfinance failed after all retries, switching to Alpha Vantage")
+            logger.warning("yfinance failed after all retries")
         
         return results
     
-    
-    def _wait_for_alpha_vantage_rate_limit(self) -> bool:
-        """
-        Wait if needed to respect Alpha Vantage rate limit (5 calls/minute).
-        Uses a global lock to prevent multiple concurrent calls from bypassing the limit.
-        Returns True if wait was successful, False if we should skip this call.
-        """
-        with self._alpha_vantage_lock:
-            current_time = time.time()
-            time_since_last_call = current_time - self._last_alpha_vantage_call
-            if time_since_last_call < self._alpha_vantage_min_interval:
-                wait_time = self._alpha_vantage_min_interval - time_since_last_call
-                # Only wait a short time to not block the entire request
-                if wait_time > 5:
-                    logger.debug(f"Alpha Vantage: Skipping {wait_time:.1f}s wait to avoid blocking")
-                    return False
-                logger.debug(f"Alpha Vantage: Waiting {wait_time:.1f}s for rate limit")
-                time.sleep(wait_time)
-            self._last_alpha_vantage_call = time.time()
-            return True
-
-    def _fetch_from_alpha_vantage(self, symbol: str) -> Optional[float]:
-        """Fetch stock price from Alpha Vantage as fallback."""
-        start_time = time.time()
-        try:
-            if not self._wait_for_alpha_vantage_rate_limit():
-                logger.debug(f"Alpha Vantage: Skipping {symbol} due to rate limit")
-                return None
-            
-            url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={self.alpha_vantage_key}"
-            request_kwargs = http_config.get_request_kwargs()
-            response = requests.get(url, **request_kwargs)
-            data = response.json()
-            
-            elapsed_ms = (time.time() - start_time) * 1000
-            
-            if 'Global Quote' in data and '05. price' in data['Global Quote']:
-                price = float(data['Global Quote']['05. price'])
-                logger.info(f"Alpha Vantage: Got price for {symbol}: {price}")
-                
-                api_metrics_service.record_api_call(
-                    service_name="alpha_vantage",
-                    success=True,
-                    response_time_ms=elapsed_ms,
-                    cached=False
-                )
-                return price
-            
-            if 'Note' in data or 'Information' in data:
-                logger.warning(f"Alpha Vantage rate limit for {symbol}")
-                api_metrics_service.record_api_call(
-                    service_name="alpha_vantage",
-                    success=False,
-                    response_time_ms=elapsed_ms,
-                    rate_limited=True
-                )
-                return None
-            
-            api_metrics_service.record_api_call(
-                service_name="alpha_vantage",
-                success=False,
-                response_time_ms=elapsed_ms,
-                cached=False
-            )
-            return None
-            
-        except Exception as e:
-            elapsed_ms = (time.time() - start_time) * 1000
-            logger.error(f"Alpha Vantage error for {symbol}: {e}")
-            api_metrics_service.record_api_call(
-                service_name="alpha_vantage",
-                success=False,
-                response_time_ms=elapsed_ms,
-                cached=False
-            )
-            return None
-
-    def _fetch_full_data_from_alpha_vantage(self, symbol: str) -> Optional[Dict[str, float]]:
-        """Fetch both price and previous close from Alpha Vantage."""
-        start_time = time.time()
-        try:
-            if not self._wait_for_alpha_vantage_rate_limit():
-                logger.debug(f"Alpha Vantage: Skipping full data for {symbol} due to rate limit")
-                return None
-            
-            url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={self.alpha_vantage_key}"
-            request_kwargs = http_config.get_request_kwargs()
-            response = requests.get(url, **request_kwargs)
-            data = response.json()
-            
-            elapsed_ms = (time.time() - start_time) * 1000
-            
-            if 'Global Quote' in data:
-                quote = data['Global Quote']
-                price = float(quote.get('05. price', 0))
-                prev_close = float(quote.get('08. previous close', 0))
-                
-                if price > 0 and prev_close > 0:
-                    logger.info(f"Alpha Vantage: Got full data for {symbol}")
-                    api_metrics_service.record_api_call(
-                        service_name="alpha_vantage_full",
-                        success=True,
-                        response_time_ms=elapsed_ms,
-                        cached=False
-                    )
-                    return {"price": price, "previous_close": prev_close}
-            
-            if 'Note' in data or 'Information' in data:
-                logger.warning(f"Alpha Vantage rate limit for {symbol}")
-                api_metrics_service.record_api_call(
-                    service_name="alpha_vantage_full",
-                    success=False,
-                    response_time_ms=elapsed_ms,
-                    rate_limited=True
-                )
-            
-            return None
-        except Exception as e:
-            elapsed_ms = (time.time() - start_time) * 1000
-            logger.error(f"Alpha Vantage full data error for {symbol}: {e}")
-            api_metrics_service.record_api_call(
-                service_name="alpha_vantage_full",
-                success=False,
-                response_time_ms=elapsed_ms,
-                cached=False
-            )
-            return None
-
-    def _fetch_price_with_fallback(self, symbol: str) -> Optional[float]:
-        """Fetch price with yfinance -> Alpha Vantage fallback, using deduplication."""
+    def _fetch_price(self, symbol: str) -> Optional[float]:
+        """Fetch price from Yahoo Finance with retry logic."""
         def do_fetch():
-            if not self._yfinance_failed:
-                for attempt in range(self._max_retries):
-                    try:
-                        session = self._create_yfinance_session()
-                        ticker = yf.Ticker(symbol, session=session)
-                        info = ticker.info
-                        price = (
-                            info.get('currentPrice') or 
-                            info.get('regularMarketPrice') or 
-                            info.get('previousClose')
-                        )
+            for attempt in range(self._max_retries):
+                try:
+                    session = self._create_yfinance_session()
+                    ticker = yf.Ticker(symbol, session=session)
+                    info = ticker.info
+                    price = (
+                        info.get('currentPrice') or 
+                        info.get('regularMarketPrice') or 
+                        info.get('previousClose')
+                    )
+                    
+                    if price is not None:
+                        return float(price)
                         
-                        if price is not None:
-                            self._yfinance_failed = False
-                            return float(price)
-                            
-                    except Exception as e:
-                        error_str = str(e)
-                        if '429' in error_str or 'Too Many Requests' in error_str or 'rate' in error_str.lower():
-                            logger.warning(f"yfinance rate limited for {symbol} (attempt {attempt + 1}/{self._max_retries})")
-                            if attempt < self._max_retries - 1:
-                                backoff = (2 ** attempt) + (random.random() * 0.5)
-                                time.sleep(backoff)
-                                continue
-                            self._yfinance_failed = True
-                        else:
-                            logger.error(f"yfinance error for {symbol}: {e}")
-                            break
+                except Exception as e:
+                    error_str = str(e)
+                    if '429' in error_str or 'Too Many Requests' in error_str or 'rate' in error_str.lower():
+                        logger.warning(f"yfinance rate limited for {symbol} (attempt {attempt + 1}/{self._max_retries})")
+                        if attempt < self._max_retries - 1:
+                            backoff = (2 ** attempt) + (random.random() * 0.5)
+                            time.sleep(backoff)
+                            continue
+                    else:
+                        logger.error(f"yfinance error for {symbol}: {e}")
+                        break
             
-            return self._fetch_from_alpha_vantage(symbol)
+            return None
         
         return self._deduplicated_fetch(symbol, do_fetch)
 
@@ -585,20 +413,11 @@ class StockPriceService:
         return data
     
     def _fetch_intraday_batch(self, symbols: List[str]) -> Dict[str, Dict[str, float]]:
-        """Fetch intraday data with Alpha Vantage fallback."""
+        """Fetch intraday data using Yahoo Finance."""
         data = {}
         start_time = time.time()
         
-        for i, symbol in enumerate(symbols):
-            if i > 0:
-                time.sleep(0.3)  # Small delay between requests
-            
-            if self._yfinance_failed:
-                av_data = self._fetch_full_data_from_alpha_vantage(symbol)
-                if av_data:
-                    data[symbol] = av_data
-                continue
-            
+        for symbol in symbols:
             fetched = False
             for attempt in range(self._max_retries):
                 try:
@@ -614,7 +433,6 @@ class StockPriceService:
                             "price": float(price),
                             "previous_close": float(prev_close)
                         }
-                        self._yfinance_failed = False
                         fetched = True
                         break
                     else:
@@ -628,14 +446,11 @@ class StockPriceService:
                             backoff = (2 ** attempt) + (random.random() * 0.5)
                             time.sleep(backoff)
                             continue
-                        self._yfinance_failed = True
                     else:
                         break
             
             if not fetched:
-                av_data = self._fetch_full_data_from_alpha_vantage(symbol)
-                if av_data:
-                    data[symbol] = av_data
+                logger.debug(f"Could not fetch intraday data for {symbol}")
         
         elapsed_ms = (time.time() - start_time) * 1000
         api_metrics_service.record_api_call(
