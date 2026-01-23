@@ -6,6 +6,7 @@ import threading
 import time
 from typing import Dict, List, Optional
 import os
+import requests
 
 from app.services.redis_service import RedisService
 
@@ -23,7 +24,9 @@ class StockPriceService:
     def _init_service(self):
         """Initialize Redis configuration"""
         self.redis_service = RedisService.get_instance()
-        self.cache_duration_seconds = 300  # 5 minutes in seconds
+        self.cache_duration_seconds = 900  # 15 minutes - longer cache to reduce Yahoo Finance API calls
+        self.alpha_vantage_key = os.getenv('ALPHA_VANTAGE_API_KEY', 'demo')  # 'demo' works with limited symbols
+        self._yfinance_failed = False  # Track if yfinance is failing (rate limited)
         print("🚀 Initializing StockPriceService with RedisService...")
     
     def _get_price_cache_key(self, symbol: str) -> str:
@@ -137,6 +140,49 @@ class StockPriceService:
         
         return results
     
+    def _fetch_from_alpha_vantage(self, symbol: str):
+        """Fetch stock price from Alpha Vantage as fallback"""
+        try:
+            url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={self.alpha_vantage_key}"
+            response = requests.get(url, timeout=10)
+            data = response.json()
+            
+            if 'Global Quote' in data and '05. price' in data['Global Quote']:
+                price = float(data['Global Quote']['05. price'])
+                print(f"Alpha Vantage: Got price for {symbol}: {price}")
+                return price
+            
+            # Check for rate limit message
+            if 'Note' in data or 'Information' in data:
+                print(f"Alpha Vantage rate limit or info message for {symbol}")
+                return None
+            
+            return None
+        except Exception as e:
+            print(f"Alpha Vantage error for {symbol}: {e}")
+            return None
+
+    def _fetch_full_data_from_alpha_vantage(self, symbol: str) -> Optional[Dict[str, float]]:
+        """Fetch both price and previous close from Alpha Vantage"""
+        try:
+            url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={self.alpha_vantage_key}"
+            response = requests.get(url, timeout=10)
+            data = response.json()
+            
+            if 'Global Quote' in data:
+                quote = data['Global Quote']
+                price = float(quote.get('05. price', 0))
+                prev_close = float(quote.get('08. previous close', 0))
+                
+                if price > 0 and prev_close > 0:
+                    print(f"Alpha Vantage: Got full data for {symbol}: price={price}, prev_close={prev_close}")
+                    return {"price": price, "previous_close": prev_close}
+            
+            return None
+        except Exception as e:
+            print(f"Alpha Vantage full data error for {symbol}: {e}")
+            return None
+
     def _fetch_from_yfinance(self, symbol: str):
         """Fetch single stock price from yfinance"""
         try:
@@ -152,15 +198,22 @@ class StockPriceService:
                 )
                 
                 if price is not None:
+                    self._yfinance_failed = False
                     return float(price)
                 
                 # Fallback: try to get the latest price from history
                 hist = ticker.history(period='1d', interval='1m')
                 if not hist.empty:
+                    self._yfinance_failed = False
                     return float(hist['Close'].iloc[-1])
                 
                 return None
         except Exception as e:
+            error_str = str(e)
+            if '429' in error_str or 'Too Many Requests' in error_str:
+                self._yfinance_failed = True
+                print(f"yfinance rate limited for {symbol}, trying Alpha Vantage...")
+                return self._fetch_from_alpha_vantage(symbol)
             print(f"Error fetching price for {symbol}: {e}")
             return None
     
@@ -224,9 +277,11 @@ class StockPriceService:
                         
         except Exception as e:
             print(f"Batch fetch failed: {e}")
-            # Fallback to individual fetches
+            # Fallback to individual fetches with rate limiting
             print("Falling back to individual symbol fetches...")
-            for symbol in symbols:
+            for i, symbol in enumerate(symbols):
+                if i > 0:
+                    time.sleep(0.5)  # 500ms delay to avoid rate limiting
                 results[symbol] = self._fetch_from_yfinance(symbol)
         
         return results
@@ -291,11 +346,22 @@ class StockPriceService:
         return data
     
     def _fetch_intraday_and_previous_close_safe(self, symbols: List[str]) -> Dict[str, Dict[str, float]]:
-        """Safer method to fetch intraday and previous close"""
+        """Safer method to fetch intraday and previous close with Alpha Vantage fallback"""
         data = {}
         
         # Try individual fetches instead of batch to avoid Yahoo Finance issues
-        for symbol in symbols:
+        for i, symbol in enumerate(symbols):
+            # Add delay between requests to avoid rate limiting
+            if i > 0:
+                time.sleep(0.5)  # 500ms delay between requests
+            
+            # If yfinance is known to be failing, skip directly to Alpha Vantage
+            if self._yfinance_failed:
+                av_data = self._fetch_full_data_from_alpha_vantage(symbol)
+                if av_data:
+                    data[symbol] = av_data
+                continue
+            
             try:
                 ticker = yf.Ticker(symbol)
                 info = ticker.info
@@ -329,10 +395,22 @@ class StockPriceService:
                             }
                     except Exception as hist_error:
                         print(f"Error fetching history for {symbol}: {hist_error}")
+                        # Try Alpha Vantage as fallback
+                        av_data = self._fetch_full_data_from_alpha_vantage(symbol)
+                        if av_data:
+                            data[symbol] = av_data
                         continue
                         
             except Exception as e:
-                print(f"Error processing {symbol}: {e}")
+                error_str = str(e)
+                if '429' in error_str or 'Too Many Requests' in error_str:
+                    self._yfinance_failed = True
+                    print(f"yfinance rate limited for {symbol}, trying Alpha Vantage...")
+                    av_data = self._fetch_full_data_from_alpha_vantage(symbol)
+                    if av_data:
+                        data[symbol] = av_data
+                else:
+                    print(f"Error processing {symbol}: {e}")
                 continue
         
         return data
