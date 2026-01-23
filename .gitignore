@@ -34,6 +34,12 @@ backend/app/services/my_sec_data/
 backend/app/services/logs/
 service-account-key.json
 
+# Attached assets (may contain pasted secrets)
+attached_assets/
+*service-account*
+*credentials*.json
+*credentials*.txt
+
 .DS_Store
 *.csv
 *.db
