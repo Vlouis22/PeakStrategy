@@ -99,6 +99,12 @@ cd backend && python run.py
 
 ## Recent Changes
 
+- 2026-01-23: Yahoo Finance reliability improvements
+  - Added User-Agent rotation with 17 realistic browser agents (Chrome, Firefox, Safari, Edge)
+  - Implemented retry with exponential backoff (up to 3 attempts) for all yfinance requests
+  - Added optional proxy support via PROXY_URL environment variable
+  - Each request uses a fresh session with rotated headers to avoid blocking
+
 - 2026-01-23: Caching efficiency improvements
   - Implemented two-tier cache (L1 local + L2 Redis) for reduced latency
   - Added true batch operations with MGET and pipeline for network efficiency
