@@ -58,7 +58,7 @@ class Config:
             raise ValueError(f"Invalid JSON in service account file: {e}")
     
     # Optional: Firebase Web API Key (for client SDK)
-    FIREBASE_WEB_API_KEY = os.getenv('FIREBASE_WEB_API_KEY', '')
+    FIREBASE_WEB_API_KEY = os.getenv('VITE_FIREBASE_API_KEY') or os.getenv('FIREBASE_WEB_API_KEY', '')
     
     # Security
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', SECRET_KEY)

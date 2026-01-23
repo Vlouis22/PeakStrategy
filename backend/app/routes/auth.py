@@ -67,12 +67,11 @@ def login():
 
     # We'll use the Firebase REST API for password authentication
     # Note: This requires the Firebase Web API key (not the admin key)
-    # We'll store it in environment variables as FIREBASE_WEB_API_KEY
     import os
-    FIREBASE_WEB_API_KEY = os.getenv('FIREBASE_WEB_API_KEY')
+    FIREBASE_WEB_API_KEY = os.getenv('VITE_FIREBASE_API_KEY') or os.getenv('FIREBASE_WEB_API_KEY')
     
     if not FIREBASE_WEB_API_KEY:
-        return jsonify({'success': False, 'error': 'Server configuration error'}), 500
+        return jsonify({'success': False, 'error': 'Server configuration error: Missing Firebase Web API key'}), 500
 
     try:
         response = requests.post(
