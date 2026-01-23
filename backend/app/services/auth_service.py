@@ -12,7 +12,7 @@ class AuthService:
     def __init__(self):
         # Access the class directly, not an instance
         self.firebase = FirebaseService
-        self.firebase_web_api_key = os.getenv('FIREBASE_WEB_API_KEY')
+        self.firebase_web_api_key = os.getenv('VITE_FIREBASE_API_KEY') or os.getenv('FIREBASE_WEB_API_KEY')
 
     
     def signup(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
