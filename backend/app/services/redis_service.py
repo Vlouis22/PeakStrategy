@@ -56,8 +56,36 @@ class InMemoryCache:
             for k in expired:
                 del self._cache[k]
 
+
+class UpstashRedisWrapper:
+    """Wrapper for Upstash Redis to provide consistent interface"""
+    
+    def __init__(self, upstash_client):
+        self._client = upstash_client
+    
+    def get(self, key: str) -> Optional[str]:
+        return self._client.get(key)
+    
+    def setex(self, key: str, ttl: int, value: str) -> bool:
+        self._client.set(key, value, ex=ttl)
+        return True
+    
+    def delete(self, key: str) -> int:
+        return self._client.delete(key)
+    
+    def scan(self, cursor: int = 0, match: str = "*", count: int = 100):
+        result = self._client.scan(cursor=cursor, match=match, count=count)
+        return result
+    
+    def incrby(self, key: str, amount: int = 1) -> int:
+        return self._client.incrby(key, amount)
+    
+    def ping(self) -> bool:
+        return self._client.ping() == "PONG"
+
+
 class RedisService:
-    """Centralized Redis service for caching with in-memory fallback"""
+    """Centralized Redis service for caching with Upstash and in-memory fallback"""
     
     _instance = None
     
@@ -68,13 +96,46 @@ class RedisService:
         return cls._instance
     
     def __init__(self):
-        self.client = self._init_redis()
+        self.client = None
         self._memory_cache = InMemoryCache()
-        self._use_memory_cache = self.client is None
+        self._use_memory_cache = True
+        self._redis_type = None
+        
+        # Try Upstash Redis first (recommended for Replit)
+        upstash_url = os.getenv('UPSTASH_REDIS_REST_URL')
+        upstash_token = os.getenv('UPSTASH_REDIS_REST_TOKEN')
+        
+        if upstash_url and upstash_token:
+            self.client = self._init_upstash(upstash_url, upstash_token)
+            if self.client:
+                self._use_memory_cache = False
+                self._redis_type = 'upstash'
+                print("Upstash Redis connection established")
+        
+        # Fall back to local Redis if Upstash not configured
+        if self.client is None:
+            self.client = self._init_local_redis()
+            if self.client:
+                self._use_memory_cache = False
+                self._redis_type = 'local'
+        
         if self._use_memory_cache:
             print("Using in-memory cache fallback (Redis unavailable)")
     
-    def _init_redis(self):
+    def _init_upstash(self, url: str, token: str):
+        """Initialize Upstash Redis connection"""
+        try:
+            from upstash_redis import Redis as UpstashRedis
+            client = UpstashRedis(url=url, token=token)
+            # Test connection
+            client.ping()
+            return UpstashRedisWrapper(client)
+        except Exception as e:
+            print(f"Upstash Redis connection failed: {e}")
+            return None
+    
+    def _init_local_redis(self):
+        """Initialize local Redis connection"""
         try:
             host = os.getenv('REDIS_HOST', 'localhost')
             port = int(os.getenv('REDIS_PORT', 6379))
@@ -92,10 +153,10 @@ class RedisService:
                 max_connections=20
             )
             client.ping()
-            print("Redis connection established")
+            print("Local Redis connection established")
             return client
         except Exception as e:
-            print(f"Redis connection failed: {e}")
+            print(f"Local Redis connection failed: {e}")
             return None
     
     def get(self, key: str) -> Optional[Any]:
@@ -149,17 +210,20 @@ class RedisService:
             return self._memory_cache.delete_pattern(pattern)
         try:
             keys = []
-            cursor = '0'
-            while cursor != 0:
-                cursor, found_keys = self.client.scan(
-                    cursor=cursor,
-                    match=pattern,
-                    count=100
-                )
+            cursor = 0
+            while True:
+                result = self.client.scan(cursor=cursor, match=pattern, count=100)
+                if isinstance(result, tuple):
+                    cursor, found_keys = result
+                else:
+                    break
                 keys.extend(found_keys)
+                if cursor == 0:
+                    break
             
             if keys:
-                self.client.delete(*keys)
+                for key in keys:
+                    self.client.delete(key)
             return True
         except Exception as e:
             print(f"Redis delete pattern error: {e}")
@@ -167,7 +231,7 @@ class RedisService:
     
     def increment(self, key: str, amount: int = 1) -> int:
         """Increment counter in Redis"""
-        if not self.client:
+        if self._use_memory_cache or not self.client:
             return 0
         try:
             return self.client.incrby(key, amount)
@@ -197,3 +261,13 @@ class RedisService:
         """Invalidate all cache for a specific user"""
         pattern = f"user:{uid}:*"
         self.delete_pattern(pattern)
+    
+    def get_connection_info(self) -> str:
+        """Get information about the current Redis connection"""
+        if self._use_memory_cache:
+            return "In-memory cache (no Redis configured)"
+        elif self._redis_type == 'upstash':
+            return "Upstash Redis (cloud)"
+        elif self._redis_type == 'local':
+            return "Local Redis"
+        return "Unknown"
