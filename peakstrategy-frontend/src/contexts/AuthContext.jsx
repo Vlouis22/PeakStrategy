@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '../firebase.js';
-import { signInWithCustomToken, signOut, onAuthStateChanged } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut, onAuthStateChanged } from 'firebase/auth';
 
 const AuthContext = createContext();
 
@@ -17,67 +17,44 @@ export function AuthProvider({ children }) {
 
   const signup = async (email, password, displayName = '') => {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/v1/auth/signup`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          // No credentials: 'include' unless you need cookies
-          body: JSON.stringify({ email, password, display_name: displayName}),
-        });
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Handle backend validation errors
-        const errorMessage = data.error || data.message || 'Failed to create account';
-        throw new Error(errorMessage);
-      }
-
-      // The backend should return a custom token
-      const customToken = data.token || data.data?.token;
+      // Create user directly with Firebase
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       
-      if (!customToken) {
-        throw new Error('No authentication token received from server');
+      // Update the user's display name if provided
+      if (displayName && userCredential.user) {
+        await updateProfile(userCredential.user, { displayName });
       }
-
-      // Sign in with the custom token from Flask backend
-      const userCredential = await signInWithCustomToken(auth, customToken);
+      
       return userCredential;
     } catch (error) {
       console.error('Signup error:', error);
+      // Provide user-friendly error messages
+      if (error.code === 'auth/email-already-in-use') {
+        throw new Error('This email is already registered');
+      } else if (error.code === 'auth/weak-password') {
+        throw new Error('Password should be at least 6 characters');
+      } else if (error.code === 'auth/invalid-email') {
+        throw new Error('Invalid email address');
+      }
       throw error;
     }
   };
 
-  // ✅ NEW: Login via Flask backend
+  // Login via Firebase directly
   const login = async (email, password) => {
     try {
-      const response = await fetch(`${BACKEND_URL}/api/v1/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        const errorMessage = data.error || data.message || 'Failed to sign in';
-        throw new Error(errorMessage);
-      }
-
-      // Get custom token from backend response
-      const customToken = data.token || data.data?.token;
-      
-      if (!customToken) {
-        throw new Error('No authentication token received from server');
-      }
-
-      // Sign in with the custom token
-      const userCredential = await signInWithCustomToken(auth, customToken);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       return userCredential;
     } catch (error) {
       console.error('Login error:', error);
+      // Provide user-friendly error messages
+      if (error.code === 'auth/user-not-found') {
+        throw new Error('No account found with this email');
+      } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        throw new Error('Invalid email or password');
+      } else if (error.code === 'auth/too-many-requests') {
+        throw new Error('Too many failed attempts. Please try again later.');
+      }
       throw error;
     }
   };
