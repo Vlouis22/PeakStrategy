@@ -79,8 +79,11 @@ cd backend && python run.py
 ## Backend Architecture
 
 ### Caching Strategy
-- Multi-tier caching: Upstash Redis (cloud) -> In-memory fallback
-- 15-minute cache TTL for stock prices
+- Two-tier caching architecture:
+  - L1: Local in-memory cache (60s TTL) - instant access, no network latency
+  - L2: Upstash Redis (cloud, 15min TTL) - shared persistent cache
+- True batch operations: MGET for reads, pipeline for writes (single network round-trip)
+- Stale-while-revalidate pattern: returns cached data instantly while refreshing in background
 - Request deduplication prevents concurrent API calls for same symbols
 - Cache warming service pre-warms frequently accessed symbols
 
@@ -95,6 +98,12 @@ cd backend && python run.py
 - `POST /api/v1/monitoring/warm-cache` - Trigger cache warming
 
 ## Recent Changes
+
+- 2026-01-23: Caching efficiency improvements
+  - Implemented two-tier cache (L1 local + L2 Redis) for reduced latency
+  - Added true batch operations with MGET and pipeline for network efficiency
+  - Added stale-while-revalidate pattern for instant responses with background refresh
+  - Added cache stats monitoring endpoint: `GET /api/v1/monitoring/cache/stats`
 
 - 2026-01-23: Backend scalability refactoring
   - Implemented request deduplication for stock price API calls
