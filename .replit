@@ -12,6 +12,9 @@ FLASK_SECRET_KEY = "dev-secret-key-for-testing"
 FLASK_ENV = "development"
 FIREBASE_SERVICE_ACCOUNT_PATH = "./service-account-key.json"
 CORS_ORIGINS = "[\"http://localhost:5000\", \"https://*.replit.dev\", \"*\"]"
+VITE_FIREBASE_AUTH_DOMAIN = "peakstrategy-7a0fb.firebaseapp.com"
+VITE_FIREBASE_PROJECT_ID = "peakstrategy-7a0fb"
+VITE_FIREBASE_STORAGE_BUCKET = "peakstrategy-7a0fb.firebasestorage.app"
 
 [workflows]
 runButton = "Project"
@@ -40,3 +43,16 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 5001
+externalPort = 3000
+
+[[ports]]
+localPort = 5002
+externalPort = 3001
+
+[deployment]
+deploymentTarget = "static"
+build = ["bash", "-c", "cd peakstrategy-frontend && npm run build"]
+publicDir = "peakstrategy-frontend/dist"
