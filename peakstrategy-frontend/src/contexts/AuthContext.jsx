@@ -12,8 +12,8 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   
-  // Your Flask backend URL - update this if you change the port
-  const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'http://localhost:5001';
+  // Your Flask backend URL - uses Vite proxy when empty
+  const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL || '';
 
   const signup = async (email, password, displayName = '') => {
     try {

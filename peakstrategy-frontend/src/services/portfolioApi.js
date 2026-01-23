@@ -1,7 +1,7 @@
 // src/services/portfolioApi.js
 import { auth } from '../firebase.js';
 
-const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL || 'http://localhost:5001';
+const BACKEND_URL = import.meta.env.VITE_REACT_APP_BACKEND_URL || '';
 
 // Helper to get authorization headers
 const getAuthHeaders = async () => {
