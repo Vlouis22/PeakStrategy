@@ -1,4 +1,4 @@
-from app.services.stock_research_service import StockResearchService
+from backend.app.services.research.stock_research_service import StockResearchService
 from pprint import pprint
 import yfinance as yf
 import finqual as fq

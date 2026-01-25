@@ -1,42 +1,25 @@
 import yfinance as yf
 import pandas as pd
-from datetime import datetime, timedelta
-from typing import Dict, Optional
+from typing import Dict
+from datetime import datetime
+from .baze_analyzer import BaseAnalyzer
 
-class ShareholderReturnsAnalyzer:
-    """
-    Analyzes shareholder returns including dividends and buybacks.
-    Uses Yahoo Finance data with computed metrics where necessary.
-    """
+
+class ShareholderReturnsAnalyzer(BaseAnalyzer):
+    """Analyzes shareholder returns including dividends and buybacks"""
     
-    def __init__(self, ticker: str):
-        self.ticker = ticker
-        self.stock = yf.Ticker(ticker)
-        
     def get_shareholder_returns(self) -> Dict:
-        """
-        Returns a comprehensive dictionary of shareholder returns data.
-        """
+        """Returns comprehensive dictionary of shareholder returns data"""
         try:
-            # Fetch core data
-            info = self.stock.info
             dividends = self.stock.dividends
             shares = self.stock.get_shares_full(start="2020-01-01")
             financials = self.stock.financials
             cash_flow = self.stock.cashflow
             
-            # Get current stock price
-            current_price = info.get('currentPrice') or info.get('regularMarketPrice', 0)
+            current_price = self.info.get('currentPrice') or self.info.get('regularMarketPrice', 0)
             
-            # Calculate dividend metrics
-            dividend_data = self._calculate_dividend_metrics(
-                dividends, info, current_price, financials
-            )
-            
-            # Calculate buyback metrics
-            buyback_data = self._calculate_buyback_metrics(
-                shares, cash_flow, current_price, info
-            )
+            dividend_data = self._calculate_dividend_metrics(dividends, current_price, financials)
+            buyback_data = self._calculate_buyback_metrics(shares, cash_flow, current_price)
             
             return {
                 'ticker': self.ticker,
@@ -45,29 +28,19 @@ class ShareholderReturnsAnalyzer:
                 'buybacks': buyback_data,
                 'timestamp': datetime.now().isoformat()
             }
-            
-        except Exception as e:
+        except:
             return {
                 'ticker': self.ticker,
-                'error': str(e),
+                'error': 'Data fetch failed',
                 'dividends': self._empty_dividend_data(),
                 'buybacks': self._empty_buyback_data()
             }
     
-    def _calculate_dividend_metrics(
-        self, 
-        dividends: pd.Series, 
-        info: Dict, 
-        current_price: float,
-        financials: pd.DataFrame
-    ) -> Dict:
-        """Calculate all dividend-related metrics."""
-        
+    def _calculate_dividend_metrics(self, dividends: pd.Series, current_price: float, financials: pd.DataFrame) -> Dict:
+        """Calculate all dividend-related metrics"""
         if dividends.empty or current_price == 0:
             return self._empty_dividend_data()
         
-        # Get trailing twelve months dividends
-        # Make datetime timezone-aware if dividends index is timezone-aware
         if hasattr(dividends.index, 'tz') and dividends.index.tz is not None:
             one_year_ago = pd.Timestamp.now(tz=dividends.index.tz) - pd.Timedelta(days=365)
         else:
@@ -76,16 +49,13 @@ class ShareholderReturnsAnalyzer:
         recent_divs = dividends[dividends.index >= one_year_ago]
         ttm_dividends = recent_divs.sum() if not recent_divs.empty else 0
         
-        # Dividend Yield
         dividend_yield = (ttm_dividends / current_price * 100) if current_price > 0 else 0
         
-        # Payout Ratio - from info or calculate from financials
-        payout_ratio = info.get('payoutRatio')
+        payout_ratio = self.info.get('payoutRatio')
         if payout_ratio is None and not financials.empty:
             try:
-                # Get net income (most recent year)
                 net_income = financials.loc['Net Income'].iloc[0] if 'Net Income' in financials.index else None
-                shares_outstanding = info.get('sharesOutstanding', 0)
+                shares_outstanding = self.info.get('sharesOutstanding', 0)
                 
                 if net_income and shares_outstanding and net_income > 0:
                     eps = net_income / shares_outstanding
@@ -94,14 +64,11 @@ class ShareholderReturnsAnalyzer:
             except:
                 payout_ratio = None
         
-        # Convert payout ratio to percentage
         if payout_ratio is not None:
             payout_ratio = payout_ratio * 100 if payout_ratio <= 1 else payout_ratio
         
-        # Dividend Growth - calculate 1-year and 3-year CAGR
         dividend_growth = self._calculate_dividend_growth(dividends)
         
-        # Last dividend amount and date
         last_dividend = dividends.iloc[-1] if not dividends.empty else 0
         last_dividend_date = dividends.index[-1].strftime('%Y-%m-%d') if not dividends.empty else None
         
@@ -118,8 +85,7 @@ class ShareholderReturnsAnalyzer:
         }
     
     def _calculate_dividend_growth(self, dividends: pd.Series) -> Dict:
-        """Calculate dividend growth rates over different periods."""
-        
+        """Calculate dividend growth rates over different periods"""
         if dividends.empty:
             return {'1y': None, '3y': None, '5y': None}
         
@@ -127,7 +93,6 @@ class ShareholderReturnsAnalyzer:
         
         for years, key in [(1, '1y'), (3, '3y'), (5, '5y')]:
             try:
-                # Make datetime timezone-aware if dividends index is timezone-aware
                 if hasattr(dividends.index, 'tz') and dividends.index.tz is not None:
                     cutoff_date = pd.Timestamp.now(tz=dividends.index.tz) - pd.Timedelta(days=years*365)
                 else:
@@ -139,7 +104,6 @@ class ShareholderReturnsAnalyzer:
                     growth_rates[key] = None
                     continue
                 
-                # Calculate annual dividend for first and last year in period
                 first_year = period_divs.index[0].year
                 last_year = period_divs.index[-1].year
                 
@@ -155,52 +119,34 @@ class ShareholderReturnsAnalyzer:
                         growth_rates[key] = None
                 else:
                     growth_rates[key] = None
-                    
             except:
                 growth_rates[key] = None
         
         return growth_rates
     
-    def _calculate_buyback_metrics(
-        self, 
-        shares: pd.Series, 
-        cash_flow: pd.DataFrame,
-        current_price: float,
-        info: Dict
-    ) -> Dict:
-        """Calculate all buyback-related metrics."""
-        
+    def _calculate_buyback_metrics(self, shares: pd.Series, cash_flow: pd.DataFrame, current_price: float) -> Dict:
+        """Calculate all buyback-related metrics"""
         if shares.empty:
             return self._empty_buyback_data()
         
-        # Shares outstanding trend
         current_shares = shares.iloc[-1]
         
-        # Calculate 1-year, 3-year, 5-year change
         share_changes = self._calculate_share_changes(shares)
         
-        # Buyback value from cash flow statement (TTM)
         buyback_value_ttm = None
         if not cash_flow.empty:
             try:
-                # Look for "Repurchase Of Capital Stock" or similar
-                buyback_row_names = [
-                    'Repurchase Of Capital Stock',
-                    'Stock Repurchase',
-                    'Purchase Of Stock',
-                    'Common Stock Repurchased'
-                ]
+                buyback_row_names = ['Repurchase Of Capital Stock', 'Stock Repurchase', 
+                                   'Purchase Of Stock', 'Common Stock Repurchased']
                 
                 for row_name in buyback_row_names:
                     if row_name in cash_flow.index:
-                        # Most recent value (TTM)
                         buyback_value_ttm = abs(cash_flow.loc[row_name].iloc[0])
                         break
             except:
                 pass
         
-        # Calculate buyback yield
-        market_cap = info.get('marketCap', 0)
+        market_cap = self.info.get('marketCap', 0)
         buyback_yield = None
         if buyback_value_ttm and market_cap > 0:
             buyback_yield = (buyback_value_ttm / market_cap) * 100
@@ -216,8 +162,7 @@ class ShareholderReturnsAnalyzer:
         }
     
     def _calculate_share_changes(self, shares: pd.Series) -> Dict:
-        """Calculate percentage change in shares outstanding over different periods."""
-        
+        """Calculate percentage change in shares outstanding"""
         if shares.empty:
             return {'1y': None, '3y': None, '5y': None}
         
@@ -226,7 +171,6 @@ class ShareholderReturnsAnalyzer:
         
         for years, key in [(1, '1y'), (3, '3y'), (5, '5y')]:
             try:
-                # Make datetime timezone-aware if shares index is timezone-aware
                 if hasattr(shares.index, 'tz') and shares.index.tz is not None:
                     cutoff_date = pd.Timestamp.now(tz=shares.index.tz) - pd.Timedelta(days=years*365)
                 else:
@@ -245,43 +189,23 @@ class ShareholderReturnsAnalyzer:
                     changes[key] = round(pct_change, 2)
                 else:
                     changes[key] = None
-                    
             except:
                 changes[key] = None
         
         return changes
     
     def _empty_dividend_data(self) -> Dict:
-        """Return empty dividend data structure."""
+        """Return empty dividend data structure"""
         return {
-            'dividend_yield': None,
-            'ttm_dividends': None,
-            'payout_ratio': None,
-            'dividend_growth_1y': None,
-            'dividend_growth_3y': None,
-            'dividend_growth_5y': None,
-            'last_dividend': None,
-            'last_dividend_date': None,
-            'has_dividend': False
+            'dividend_yield': None, 'ttm_dividends': None, 'payout_ratio': None,
+            'dividend_growth_1y': None, 'dividend_growth_3y': None, 'dividend_growth_5y': None,
+            'last_dividend': None, 'last_dividend_date': None, 'has_dividend': False
         }
     
     def _empty_buyback_data(self) -> Dict:
-        """Return empty buyback data structure."""
+        """Return empty buyback data structure"""
         return {
-            'current_shares_outstanding': None,
-            'shares_change_1y': None,
-            'shares_change_3y': None,
-            'shares_change_5y': None,
-            'buyback_value_ttm': None,
-            'buyback_yield': None,
-            'is_buying_back': False
+            'current_shares_outstanding': None, 'shares_change_1y': None,
+            'shares_change_3y': None, 'shares_change_5y': None,
+            'buyback_value_ttm': None, 'buyback_yield': None, 'is_buying_back': False
         }
-
-
-# Example usage
-if __name__ == "__main__":
-    analyzer = ShareholderReturnsAnalyzer("AAPL")
-    data = analyzer.get_shareholder_returns()
-    
-    import json
-    print(json.dumps(data, indent=2))

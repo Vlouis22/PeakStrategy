@@ -6,6 +6,8 @@ import { Valuation } from "../components/Valuation";
 import { ProfitabilityAndEfficiency } from "../components/ProfitabilityAndEfficiency";
 import { BalanceSheet } from "../components/BalanceSheet";
 import { ShareholderReturns } from "../components/ShareholderReturns";
+import { BusinessResearch } from "../components/BusinessResearch";
+
 
 const Research = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -144,7 +146,7 @@ const Research = () => {
             {/* Business */}
             {activeTab === "Business" && (
               <div className="border rounded-xl p-4 bg-white shadow-sm text-sm">
-                Business analysis content goes here.
+                <BusinessResearch data={stockData.business_understanding} />
               </div>
             )}
 

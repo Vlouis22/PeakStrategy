@@ -1,8 +1,8 @@
 # app/routes/portfolio.py
 from flask import Blueprint, request, jsonify
 from app.services.firebase_service import FirebaseService
-from app.services.stock_research_service import StockResearchService
 from datetime import datetime
+from app.services.research.stock_research_service import StockResearchService
 
 research_bp = Blueprint('research', __name__, url_prefix='/research')
 
@@ -30,18 +30,13 @@ def get_stock_research(ticker):
         return jsonify({'success': False, 'error': 'Unauthorized'}), 401
 
     try:
-        # Validate ticker parameter
         if not ticker or not isinstance(ticker, str):
             return jsonify({'success': False, 'error': 'Valid ticker symbol required'}), 400
         
         ticker = ticker.upper().strip()
-        
-        # Create StockResearchService instance
-        research_service = StockResearchService(ticker)
-        
-        # Get complete research data
-        research_data = research_service.get_stock_info()
-        
+
+        research_data = StockResearchService(ticker).get_stock_info()
+
         # Add metadata
         result = {
             'success': True,

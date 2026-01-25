@@ -7,12 +7,9 @@ import time
 import logging
 import random
 from typing import Dict, List, Optional
-import os
-import requests
 
 from app.services.redis_service import RedisService
 from app.services.api_metrics_service import api_metrics_service
-from app.services.http_config import http_config
 
 logger = logging.getLogger(__name__)
 
@@ -37,15 +34,6 @@ class StockPriceService:
         self._pending_fetches: Dict[str, tuple] = {}  # Maps symbol -> (event, result)
         self._max_retries = 3  # Max retries with exponential backoff
         logger.info("StockPriceService initialized with RedisService (Yahoo Finance only)")
-    
-    def _create_yfinance_session(self) -> requests.Session:
-        """Create a new session with rotated User-Agent for yfinance requests."""
-        session = requests.Session()
-        session.headers.update(http_config.get_headers())
-        proxies = http_config.get_proxies()
-        if proxies:
-            session.proxies.update(proxies)
-        return session
     
     def _get_price_cache_key(self, symbol: str) -> str:
         return f"stock_price:{symbol}"
@@ -267,13 +255,12 @@ class StockPriceService:
         return results
     
     def _try_yfinance_batch(self, symbols: List[str]) -> Dict[str, Optional[float]]:
-        """Try to fetch prices using yfinance batch download with retry and User-Agent rotation."""
+        """Try to fetch prices using yfinance batch download with retry."""
         results = {}
         
         for attempt in range(self._max_retries):
             try:
-                session = self._create_yfinance_session()
-                
+                # Let yfinance handle its own session (uses curl_cffi internally)
                 with self._fetch_lock:
                     tickers = yf.download(
                         " ".join(symbols),
@@ -281,8 +268,7 @@ class StockPriceService:
                         interval="1m",
                         group_by='ticker',
                         progress=False,
-                        auto_adjust=True,
-                        session=session
+                        auto_adjust=True
                     )
                     
                     if tickers is not None and not tickers.empty:
@@ -314,7 +300,7 @@ class StockPriceService:
                         response_time_ms=0,
                         rate_limited=True
                     )
-                    logger.warning(f"yfinance rate limited (attempt {attempt + 1}/{self._max_retries}), will retry with new User-Agent")
+                    logger.warning(f"yfinance rate limited (attempt {attempt + 1}/{self._max_retries}), will retry")
                 else:
                     logger.error(f"yfinance batch error: {e}")
             
@@ -333,8 +319,8 @@ class StockPriceService:
         def do_fetch():
             for attempt in range(self._max_retries):
                 try:
-                    session = self._create_yfinance_session()
-                    ticker = yf.Ticker(symbol, session=session)
+                    # Let yfinance handle its own session
+                    ticker = yf.Ticker(symbol)
                     info = ticker.info
                     price = (
                         info.get('currentPrice') or 
@@ -421,8 +407,8 @@ class StockPriceService:
             fetched = False
             for attempt in range(self._max_retries):
                 try:
-                    session = self._create_yfinance_session()
-                    ticker = yf.Ticker(symbol, session=session)
+                    # Let yfinance handle its own session
+                    ticker = yf.Ticker(symbol)
                     info = ticker.info
                     
                     price = info.get("regularMarketPrice") or info.get('currentPrice')

@@ -126,6 +126,7 @@ class RedisService:
         # Try Upstash Redis first (recommended for Replit)
         upstash_url = os.getenv('UPSTASH_REDIS_REST_URL')
         upstash_token = os.getenv('UPSTASH_REDIS_REST_TOKEN')
+        print(f"\n\nUpstash URL: {upstash_url}, Token: {'set' if upstash_token else 'not set'}")
         
         if upstash_url and upstash_token:
             self.client = self._init_upstash(upstash_url, upstash_token)
