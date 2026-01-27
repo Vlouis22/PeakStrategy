@@ -7,6 +7,7 @@ import { ProfitabilityAndEfficiency } from "../components/ProfitabilityAndEffici
 import { BalanceSheet } from "../components/BalanceSheet";
 import { ShareholderReturns } from "../components/ShareholderReturns";
 import { BusinessResearch } from "../components/BusinessResearch";
+import { StockResearchSummary } from "../components/StockResearchSummary";
 
 
 const Research = () => {
@@ -15,6 +16,10 @@ const Research = () => {
   const [error, setError] = useState(null);
   const [stockData, setStockData] = useState(null);
   const [activeTab, setActiveTab] = useState("Summary");
+
+  if(stockData){
+    console.log("STOCK DATA:", stockData);
+  }
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -40,6 +45,23 @@ const Research = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Handle metric clicks to navigate to appropriate tab
+  const handleMetricClick = (metricName) => {
+    const tabMap = {
+      'Valuation': 'Valuation',
+      'Profitability': 'Profitability & Efficiency',
+      'Financial Health': 'Balance Sheet',
+      'Shareholder Returns': 'Shareholder Returns',
+      'Growth Outlook': 'Outlook'
+    };
+
+    const targetTab = tabMap[metricName] || metricName;
+    setActiveTab(targetTab);
+
+    // Scroll to top of content
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const changeColor = (change) =>
@@ -103,6 +125,8 @@ const Research = () => {
                   { label: "Sector", value: stockData.snapshot.metrics.sector },
                   { label: "Industry", value: stockData.snapshot.metrics.industry },
                   { label: "52-Week Range", value: stockData.snapshot.metrics.week_52_range },
+                  { label: "Dividend Yield", value: stockData.shareholder_returns.dividends.dividend_yield.toFixed(2) + "%" },
+                  { label: "Currency", value: stockData.additional_info.currency },
                 ].map(({ label, value, color }) => (
                   <div
                     key={label}
@@ -118,15 +142,15 @@ const Research = () => {
             </div>
 
             {/* Tabs */}
-            <div className="border-b flex gap-8">
+            <div className="border-b flex gap-8 overflow-x-auto">
               {["Summary", "Business", "Financials", "Valuation", "Profitability & Efficiency", "Balance Sheet", "Shareholder Returns", "Outlook"].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-3 font-medium ${
+                  className={`py-3 font-medium whitespace-nowrap transition-colors ${
                     activeTab === tab
-                      ? "border-b-2 border-black"
-                      : "text-gray-500"
+                      ? "border-b-2 border-black text-black"
+                      : "text-gray-500 hover:text-gray-700"
                   }`}
                 >
                   {tab}
@@ -138,7 +162,19 @@ const Research = () => {
             {activeTab === "Summary" && (
               <div className="space-y-6">
                 <div className="border rounded-xl p-4 bg-white shadow-sm text-sm">
-                  {stockData.business_understanding.company_description}
+                  <StockResearchSummary 
+                    scoring_pillars={stockData.scoring_pillars} 
+                    company_name={stockData.business_understanding.companyOverview.companyName}
+                    company_logo_url={stockData.company_logo_url}
+                    shareholder_returns={stockData.shareholder_returns} 
+                    ceo={stockData.business_understanding.leadershipGovernance.ceo}
+                    year_founded={stockData.business_understanding.companyOverview.founded}
+                    employees={stockData.business_understanding.operationalMetrics.employees}
+                    location={stockData.business_understanding.operationalMetrics.locations}
+                    price_targets={stockData.analyst_consensus}
+                    summary_data={stockData.company_summary}
+                    onMetricClick={handleMetricClick}
+                  />
                 </div>
               </div>
             )}

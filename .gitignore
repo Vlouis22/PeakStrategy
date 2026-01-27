@@ -32,6 +32,8 @@ dist-ssr
 backend/app/services/data_raw/
 backend/app/services/my_sec_data/
 backend/app/services/logs/
+backend/app/data/apple_research.json
+backend/app/data/microsoft_research.json
 service-account-key.json
 
 # Attached assets (may contain pasted secrets)
@@ -49,3 +51,5 @@ service-account-key.json
 __pycache__/
 node_modules/
 .env
+
+peakstrategy-frontend/.gitignore

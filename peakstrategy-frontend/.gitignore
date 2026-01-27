@@ -33,6 +33,8 @@ backend/app/services/data_raw/
 backend/app/services/my_sec_data/
 backend/app/services/logs/
 service-account-key.json
+backend/app/data/apple_research.json
+backend/app/data/microsoft_research.json
 
 .DS_Store
 *.csv
