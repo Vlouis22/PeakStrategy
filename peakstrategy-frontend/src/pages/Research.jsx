@@ -9,6 +9,16 @@ import { ShareholderReturns } from "../components/ShareholderReturns";
 import { BusinessResearch } from "../components/BusinessResearch";
 import { StockResearchSummary } from "../components/StockResearchSummary";
 
+const TABS = [
+  "Summary",
+  "Business",
+  "Financials",
+  "Valuation",
+  "Profitability & Efficiency",
+  "Balance Sheet",
+  "Shareholder Returns",
+  "Outlook",
+];
 
 const Research = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -16,10 +26,6 @@ const Research = () => {
   const [error, setError] = useState(null);
   const [stockData, setStockData] = useState(null);
   const [activeTab, setActiveTab] = useState("Summary");
-
-  if(stockData){
-    console.log("STOCK DATA:", stockData);
-  }
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -30,10 +36,7 @@ const Research = () => {
     setStockData(null);
 
     try {
-      const res = await portfolioApi.getStockResearch(
-        searchQuery.toUpperCase()
-      );
-
+      const res = await portfolioApi.getStockResearch(searchQuery.toUpperCase());
       if (res.success) {
         setStockData(res.data);
         setActiveTab("Summary");
@@ -47,110 +50,145 @@ const Research = () => {
     }
   };
 
-  // Handle metric clicks to navigate to appropriate tab
   const handleMetricClick = (metricName) => {
     const tabMap = {
-      'Valuation': 'Valuation',
-      'Profitability': 'Profitability & Efficiency',
-      'Financial Health': 'Balance Sheet',
-      'Shareholder Returns': 'Shareholder Returns',
-      'Growth Outlook': 'Outlook'
+      Valuation: "Valuation",
+      Profitability: "Profitability & Efficiency",
+      "Financial Health": "Balance Sheet",
+      "Shareholder Returns": "Shareholder Returns",
+      "Growth Outlook": "Outlook",
     };
 
-    const targetTab = tabMap[metricName] || metricName;
-    setActiveTab(targetTab);
-
-    // Scroll to top of content
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setActiveTab(tabMap[metricName] || metricName);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const changeColor = (change) =>
     !change
-      ? "text-gray-500"
+      ? "text-neutral-500"
       : change.includes("-")
       ? "text-red-600"
-      : "text-green-600";
+      : "text-emerald-600";
+
+  const MetricCard = ({ label, value, valueColor }) => (
+  <div className="bg-white border border-neutral-200 rounded-xl px-4 py-3">
+    <div className="text-xs uppercase tracking-wide text-neutral-500 mb-1">
+      {label}
+    </div>
+    <div className={`text-lg font-semibold ${valueColor}`}>
+      {value ?? "-"}
+    </div>
+  </div>
+);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Search */}
-      <div className="sticky top-0 bg-white border-b px-6 py-4 z-10">
-        <form onSubmit={handleSearch} className="max-w-5xl mx-auto relative">
+    <div className="min-h-screen bg-transparent">
+      {/* Search (NO background) */}
+      <div className="sticky top-0 z-40 bg-transparent backdrop-blur-sm">
+        <form
+          onSubmit={handleSearch}
+          className="max-w-6xl mx-auto px-6 py-6 relative"
+        >
           <input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
-            placeholder="Search stock symbol (AAPL, MSFT...)"
-            className="w-full px-6 py-3 text-base border rounded-lg"
+            placeholder="Enter stock symbol (AAPL, MSFT)"
+            className="w-full px-7 py-4 text-xl border border-neutral-300 rounded-xl focus:outline-none focus:border-black bg-white"
             disabled={loading}
           />
           <button
             type="submit"
             disabled={loading}
-            className="absolute right-2 top-2 px-4 py-1.5 bg-black text-white rounded-md text-sm"
+            className="absolute right-8 top-1/2 -translate-y-1/2 px-7 py-2.5 rounded-lg bg-black text-white text-sm font-medium hover:bg-neutral-800 disabled:bg-neutral-300"
           >
-            {loading ? "Loading..." : "Search"}
+            {loading ? "Loading…" : "Analyze"}
           </button>
         </form>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto px-6 py-0">
+        <div className="bg-white border-neutral-200 rounded-2xl mt-6 px-6 py-10">
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border rounded text-sm">{error}</div>
+          <div className="mb-6 text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-3">
+            {error}
+          </div>
         )}
 
         {!stockData && !loading && (
-          <div className="text-center py-20 text-gray-500 text-sm">
-            Search for a stock to begin
+          <div className="text-center py-28 text-neutral-400 text-lg">
+            Start by searching a stock symbol
           </div>
         )}
 
         {stockData && (
-          <div className="space-y-8">
+          <div className="space-y-10">
             {/* Header */}
-            <div className="border rounded-xl p-4 bg-white shadow-sm">
-              <h1 className="text-2xl font-bold mb-2">
-                {stockData.company_name} ({stockData.ticker})
-              </h1>
-
-              {/* Key Metrics (Compact) */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {[
-                  { label: "Price", value: stockData.snapshot.metrics.price },
-                  {
-                    label: "Day Change",
-                    value: `${stockData.snapshot.metrics.day} (${stockData.snapshot.metrics.day_change})`,
-                    color: changeColor(stockData.snapshot.metrics.day_change),
-                  },
-                  { label: "Market Cap", value: stockData.snapshot.metrics.market_cap },
-                  { label: "Sector", value: stockData.snapshot.metrics.sector },
-                  { label: "Industry", value: stockData.snapshot.metrics.industry },
-                  { label: "52-Week Range", value: stockData.snapshot.metrics.week_52_range },
-                  { label: "Dividend Yield", value: stockData.shareholder_returns.dividends.dividend_yield.toFixed(2) + "%" },
-                  { label: "Currency", value: stockData.additional_info.currency },
-                ].map(({ label, value, color }) => (
-                  <div
-                    key={label}
-                    className="flex flex-col justify-center items-start border rounded-lg p-2 bg-gray-50 shadow-sm"
-                  >
-                    <span className="text-gray-500 text-[10px] font-medium uppercase">{label}</span>
-                    <span className={`font-semibold text-sm mt-1 ${color ? color : ""}`}>
-                      {value ?? "-"}
-                    </span>
+            <div className="space-y-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h1 className="text-4xl font-light text-neutral-900">
+                    {stockData.company_name}
+                  </h1>
+                  <div className="mt-2 text-base text-neutral-500">
+                    {stockData.ticker} •{" "}
+                    {stockData.snapshot.metrics.sector}
                   </div>
-                ))}
+                </div>
+
+                <div className="text-right">
+                  <div className="text-3xl font-light">
+                    {stockData.snapshot.metrics.price}
+                  </div>
+                  <div
+                    className={`text-base font-medium ${changeColor(
+                      stockData.snapshot.metrics.day_change
+                    )}`}
+                  >
+                    {stockData.snapshot.metrics.day} (
+                    {stockData.snapshot.metrics.day_change})
+                  </div>
+                </div>
+              </div>
+
+              {/* Metrics Bar */}
+              <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <MetricCard
+                    label="Market Cap"
+                    value={stockData.snapshot.metrics.market_cap}
+                    valueColor="text-indigo-600"
+                  />
+                  <MetricCard
+                    label="Industry"
+                    value={stockData.snapshot.metrics.industry}
+                    valueColor="text-blue-600"
+                  />
+                  <MetricCard
+                    label="52W Range"
+                    value={stockData.snapshot.metrics.week_52_range}
+                    valueColor="text-emerald-600"
+                  />
+                  <MetricCard
+                    label="Dividend Yield"
+                    value={
+                      stockData.shareholder_returns.dividends.dividend_yield?.toFixed(2) + "%"
+                    }
+                    valueColor="text-amber-600"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Tabs */}
-            <div className="border-b flex gap-8 overflow-x-auto">
-              {["Summary", "Business", "Financials", "Valuation", "Profitability & Efficiency", "Balance Sheet", "Shareholder Returns", "Outlook"].map((tab) => (
+            <div className="flex gap-8 border-b border-neutral-200 overflow-x-auto">
+              {TABS.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-3 font-medium whitespace-nowrap transition-colors ${
+                  className={`pb-4 text-base font-medium whitespace-nowrap transition-colors ${
                     activeTab === tab
-                      ? "border-b-2 border-black text-black"
-                      : "text-gray-500 hover:text-gray-700"
+                      ? "text-black border-b-2 border-black"
+                      : "text-neutral-500 hover:text-neutral-800"
                   }`}
                 >
                   {tab}
@@ -158,79 +196,80 @@ const Research = () => {
               ))}
             </div>
 
-            {/* Summary */}
-            {activeTab === "Summary" && (
-              <div className="space-y-6">
-                <div className="border rounded-xl p-4 bg-white shadow-sm text-sm">
-                  <StockResearchSummary 
-                    scoring_pillars={stockData.scoring_pillars} 
-                    company_name={stockData.business_understanding.companyOverview.companyName}
-                    company_logo_url={stockData.company_logo_url}
-                    shareholder_returns={stockData.shareholder_returns} 
-                    ceo={stockData.business_understanding.leadershipGovernance.ceo}
-                    year_founded={stockData.business_understanding.companyOverview.founded}
-                    employees={stockData.business_understanding.operationalMetrics.employees}
-                    location={stockData.business_understanding.operationalMetrics.locations}
-                    price_targets={stockData.analyst_consensus}
-                    summary_data={stockData.company_summary}
-                    onMetricClick={handleMetricClick}
-                  />
-                </div>
-              </div>
-            )}
+            {/* Content */}
+            <div className="pt-6">
+              {activeTab === "Summary" && (
+                <StockResearchSummary
+                  scoring_pillars={stockData.scoring_pillars}
+                  company_name={
+                    stockData.business_understanding.companyOverview.companyName
+                  }
+                  company_logo_url={stockData.company_logo_url}
+                  shareholder_returns={stockData.shareholder_returns}
+                  ceo={stockData.business_understanding.leadershipGovernance.ceo}
+                  year_founded={
+                    stockData.business_understanding.companyOverview.founded
+                  }
+                  employees={
+                    stockData.business_understanding.operationalMetrics.employees
+                  }
+                  location={
+                    stockData.business_understanding.operationalMetrics.locations
+                  }
+                  price_targets={stockData.analyst_consensus}
+                  summary_data={stockData.company_summary}
+                  onMetricClick={handleMetricClick}
+                />
+              )}
 
-            {/* Business */}
-            {activeTab === "Business" && (
-              <div className="border rounded-xl p-4 bg-white shadow-sm text-sm">
+              {activeTab === "Business" && (
                 <BusinessResearch data={stockData.business_understanding} />
-              </div>
-            )}
+              )}
 
-            {/* Financials */}
-            {activeTab === "Financials" && (
-              <FinancialChart data={stockData} />
-            )}
+              {activeTab === "Financials" && (
+                <FinancialChart data={stockData} />
+              )}
 
-            {/* Valuation */}
-            {activeTab === "Valuation" && (
-              <div className="border rounded-xl p-4 bg-white shadow-sm text-sm">
+              {activeTab === "Valuation" && (
                 <Valuation valuationData={stockData.valuation} />
-              </div>
-            )}
+              )}
 
-            {/* Profitability & Efficiency */}
-            {activeTab === "Profitability & Efficiency" && (
-              <div className="border rounded-xl p-4 bg-white shadow-sm text-sm">
-                <ProfitabilityAndEfficiency financialData={stockData.profitability_and_efficiency} />
-              </div>
-            )}
+              {activeTab === "Profitability & Efficiency" && (
+                <ProfitabilityAndEfficiency
+                  financialData={stockData.profitability_and_efficiency}
+                />
+              )}
 
-            {/* Balance Sheet */}
-            {activeTab === "Balance Sheet" && (
-              <div className="border rounded-xl p-4 bg-white shadow-sm text-sm">
+              {activeTab === "Balance Sheet" && (
                 <BalanceSheet balanceSheet={stockData.balance_sheet} />
-              </div>
-            )}
+              )}
 
-            {/* Shareholder Returns */}
-            {activeTab === "Shareholder Returns" && (
-              <div className="border rounded-xl p-4 bg-white shadow-sm text-sm">
+              {activeTab === "Shareholder Returns" && (
                 <ShareholderReturns data={stockData.shareholder_returns} />
-              </div>
-            )}
+              )}
 
-
-            {/* Outlook */}
-            {activeTab === "Outlook" && (
-              <div className="border rounded-xl p-4 bg-white shadow-sm text-sm">
-                <AnalystConsensus consensusData={stockData.analyst_consensus} />
-              </div>
-            )}
+              {activeTab === "Outlook" && (
+                <AnalystConsensus
+                  consensusData={stockData.analyst_consensus}
+                />
+              )}
+            </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
 };
+
+/* Small helper component for metrics */
+const Metric = ({ label, value, color }) => (
+  <div>
+    <div className="text-sm text-neutral-500 mb-1">{label}</div>
+    <div className={`text-xl font-semibold ${color}`}>
+      {value ?? "-"}
+    </div>
+  </div>
+);
 
 export default Research;

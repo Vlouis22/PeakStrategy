@@ -84,11 +84,6 @@ export const StockResearchSummary = ({
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">
               {companyName}
             </h1>
-            {ticker && (
-              <span className="font-mono font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-lg text-lg">
-                {ticker.toUpperCase()}
-              </span>
-            )}
           </div>
           
           {sector && (
@@ -100,11 +95,12 @@ export const StockResearchSummary = ({
           )}
 
           <div className="flex items-center gap-4">
-            {price && (
-              <span className="text-2xl font-bold text-slate-900">
-                {formatCurrency(typeof price === 'number' ? price : parseFloat(price))}
+            {ticker && (
+              <span className="font-mono font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-lg text-lg">
+                {ticker.toUpperCase()}
               </span>
             )}
+            
             {dayChange && (
               <span className={`font-semibold text-base ${dayChange?.toString?.().startsWith('+') ? 'text-emerald-600' : dayChange?.toString?.().startsWith('-') ? 'text-red-600' : 'text-slate-600'}`}>
                 {dayChange}
@@ -361,28 +357,10 @@ export const StockResearchSummary = ({
 
   const macroSummary = getMacroSummary();
 
-  const getImpactColor = (impact) => {
-    if (impact === 'High') return 'bg-red-50 border-red-200 text-red-700';
-    if (impact === 'Medium') return 'bg-amber-50 border-amber-200 text-amber-700';
-    return 'bg-green-50 border-green-200 text-green-700';
-  };
-
-  const getImpactDot = (impact) => {
-    if (impact === 'High') return 'bg-red-500';
-    if (impact === 'Medium') return 'bg-amber-500';
-    return 'bg-green-500';
-  };
-
-  const getImpactBgColor = (impact) => {
-    if (impact === 'High') return 'bg-red-100';
-    if (impact === 'Medium') return 'bg-amber-100';
-    return 'bg-green-100';
-  };
-
   const getImpactTextColor = (impact) => {
-    if (impact === 'High') return 'text-red-700';
-    if (impact === 'Medium') return 'text-amber-700';
-    return 'text-green-700';
+    if (impact === 'High') return 'text-red-600';
+    if (impact === 'Medium') return 'text-amber-600';
+    return 'text-green-600';
   };
 
   // Content Section with Animation
@@ -538,137 +516,137 @@ export const StockResearchSummary = ({
           )}
         </div>
 
-        {/* Analyst Sentiment & Price Target Section */}
-        {analystSentiment && (
-          <ContentSection delay={0.6}>
-            <div className="mb-16 bg-white rounded-lg border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <Target className="text-blue-600" size={24} />
+        {/* Analyst Sentiment & Shareholder Returns - Side by Side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16">
+          {/* Analyst Sentiment & Price Target */}
+          {analystSentiment && (
+            <ContentSection delay={0.6}>
+              <div className="h-full bg-white rounded-lg border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <Target className="text-blue-600" size={20} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-slate-900">Analyst Sentiment</h2>
+                    <p className="text-xs text-slate-500">{analystSentiment.totalAnalysts} analysts</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">Analyst Sentiment & Price Target</h2>
-                  <p className="text-xs text-slate-500 mt-0.5">{analystSentiment.totalAnalysts} analysts covering</p>
+
+                <div className="space-y-4 mb-5">
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-xs text-slate-600 font-medium">Current Price</p>
+                    <p className="text-xl font-bold text-slate-900">{formatCurrency(analystSentiment.currentPrice)}</p>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <p className="text-xs text-blue-600 font-medium">Avg. Target</p>
+                    <p className="text-xl font-bold text-blue-600">{formatCurrency(analystSentiment.avgTarget)}</p>
+                  </div>
+                  <div className="flex items-baseline justify-between">
+                    <p className={`text-xs font-medium ${analystSentiment.upsideDownside > 0 ? 'text-emerald-600' : analystSentiment.upsideDownside < 0 ? 'text-red-600' : 'text-slate-600'}`}>
+                      Upside/Downside
+                    </p>
+                    <p className={`text-xl font-bold ${analystSentiment.upsideDownside > 0 ? 'text-emerald-600' : analystSentiment.upsideDownside < 0 ? 'text-red-600' : 'text-slate-600'}`}>
+                      {analystSentiment.upsideDownside > 0 ? '+' : ''}{analystSentiment.upsideDownside.toFixed(1)}%
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-slate-200">
+                  <p className="text-xs text-slate-600 font-medium mb-3">Rating Distribution</p>
+                  <div className="flex items-center gap-1 h-3 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-emerald-500 h-full transition-all duration-500"
+                      style={{ width: `${analystSentiment.bullishPct}%` }}
+                    ></div>
+                    <div 
+                      className="bg-slate-400 h-full transition-all duration-500"
+                      style={{ width: `${analystSentiment.neutralPct}%` }}
+                    ></div>
+                    <div 
+                      className="bg-red-500 h-full transition-all duration-500"
+                      style={{ width: `${analystSentiment.bearishPct}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-emerald-500"></div>
+                      <span className="text-xs text-slate-700 font-medium">{analystSentiment.bullishPct}% Buy</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-slate-400"></div>
+                      <span className="text-xs text-slate-700 font-medium">{analystSentiment.neutralPct}% Hold</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <span className="text-xs text-slate-700 font-medium">{analystSentiment.bearishPct}% Sell</span>
+                    </div>
+                  </div>
                 </div>
               </div>
+            </ContentSection>
+          )}
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-                  <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-2">Current Price</p>
-                  <p className="text-3xl font-bold text-slate-900">{formatCurrency(analystSentiment.currentPrice)}</p>
+          {/* Shareholder Returns */}
+          {shareholderReturnsSummary && (
+            <ContentSection delay={0.65}>
+              <div className="h-full bg-white rounded-lg border border-slate-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <div className="flex items-center gap-3 mb-5">
+                  <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
+                    <Sparkles className="text-amber-600" size={20} />
+                  </div>
+                  <h2 className="text-lg font-bold text-slate-900">Shareholder Returns</h2>
                 </div>
-                <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                  <p className="text-xs text-blue-600 font-semibold uppercase tracking-wide mb-2">Avg. Target</p>
-                  <p className="text-3xl font-bold text-blue-600">{formatCurrency(analystSentiment.avgTarget)}</p>
+                
+                <div className="space-y-4 mb-5">
+
+                  {shareholderReturnsSummary.hasDividend && shareholderReturnsSummary.dividendYield !== null && (
+                    <div className="flex items-baseline justify-between">
+                      <p className="text-xs text-amber-600 font-medium">Dividend Yield</p>
+                      <p className="text-xl font-bold text-amber-600">{shareholderReturnsSummary.dividendYield?.toFixed(2)}%</p>
+                    </div>
+                  )}
+
+                  {shareholderReturnsSummary.hasPayoutRatio && shareholderReturnsSummary.payoutRatio !== null && (
+                    <div className="flex items-baseline justify-between">
+                      <p className="text-xs text-slate-600 font-medium">Payout Ratio</p>
+                      <p className="text-xl font-bold text-slate-900">{shareholderReturnsSummary.payoutRatio?.toFixed(1)}%</p>
+                    </div>
+                  )}
+
+                  {shareholderReturnsSummary.isBuyingBack && shareholderReturnsSummary.buybackYield !== null && (
+                    <div className="flex items-baseline justify-between">
+                      <p className="text-xs text-amber-600 font-medium">Buyback Yield</p>
+                      <p className="text-xl font-bold text-amber-600">{shareholderReturnsSummary.buybackYield?.toFixed(2)}%</p>
+                    </div>
+                  )}
                 </div>
-                <div className={`rounded-lg p-4 border-2 ${analystSentiment.upsideDownside > 0 ? 'bg-emerald-50 border-emerald-300' : analystSentiment.upsideDownside < 0 ? 'bg-red-50 border-red-300' : 'bg-slate-50 border-slate-200'}`}>
-                  <p className={`text-xs font-semibold uppercase tracking-wide mb-2 ${analystSentiment.upsideDownside > 0 ? 'text-emerald-600' : analystSentiment.upsideDownside < 0 ? 'text-red-600' : 'text-slate-600'}`}>
-                    Upside/Downside
+
+                <div className="pt-4 border-t border-slate-200">
+                  <p className="text-sm text-slate-700 leading-relaxed">
+                    {shareholderReturnsSummary.hasDividend ? (
+                      <>The company maintains an active dividend program with a sustainable payout ratio. </>
+                    ) : (
+                      <>The company does not currently pay a dividend. </>
+                    )}
+                    {shareholderReturnsSummary.isBuyingBack ? (
+                      <>Share repurchases complement the total return strategy.</>
+                    ) : (
+                      <>The company is not currently executing share repurchases.</>
+                    )}
                   </p>
-                  <p className={`text-3xl font-bold ${analystSentiment.upsideDownside > 0 ? 'text-emerald-600' : analystSentiment.upsideDownside < 0 ? 'text-red-600' : 'text-slate-600'}`}>
-                    {analystSentiment.upsideDownside > 0 ? '+' : ''}{analystSentiment.upsideDownside.toFixed(1)}%
-                  </p>
                 </div>
               </div>
+            </ContentSection>
+          )}
+        </div>
 
-              <div>
-                <p className="text-xs text-slate-500 font-semibold uppercase tracking-wide mb-16">Rating Distribution</p>
-                <div className="flex items-end gap-2 h-20">
-                  <div className="flex-1 flex flex-col items-center justify-end">
-                    <div className="flex items-center justify-center mb-2 h-6">
-                      <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded">{analystSentiment.bullishPct}%</span>
-                    </div>
-                    <div className="w-full bg-emerald-500 rounded-t-lg transition-all duration-300" style={{ height: `${Math.max(analystSentiment.bullishPct * 0.8, 8)}px` }}></div>
-                    <p className="text-xs text-slate-600 font-semibold mt-2">Buy</p>
-                  </div>
-                  <div className="flex-1 flex flex-col items-center justify-end">
-                    <div className="flex items-center justify-center mb-2 h-6">
-                      <span className="text-xs font-bold text-slate-700 bg-slate-200 px-2 py-1 rounded">{analystSentiment.neutralPct}%</span>
-                    </div>
-                    <div className="w-full bg-slate-400 rounded-t-lg transition-all duration-300" style={{ height: `${Math.max(analystSentiment.neutralPct * 0.8, 8)}px` }}></div>
-                    <p className="text-xs text-slate-600 font-semibold mt-2">Hold</p>
-                  </div>
-                  <div className="flex-1 flex flex-col items-center justify-end">
-                    <div className="flex items-center justify-center mb-2 h-6">
-                      <span className="text-xs font-bold text-red-700 bg-red-100 px-2 py-1 rounded">{analystSentiment.bearishPct}%</span>
-                    </div>
-                    <div className="w-full bg-red-500 rounded-t-lg transition-all duration-300" style={{ height: `${Math.max(analystSentiment.bearishPct * 0.8, 8)}px` }}></div>
-                    <p className="text-xs text-slate-600 font-semibold mt-2">Sell</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </ContentSection>
-        )}
-
-        {/* Shareholder Returns Section - SIMPLIFIED */}
-        {shareholderReturnsSummary && (
-          <ContentSection delay={0.65}>
-            <div className="mb-16 bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg border border-amber-200 p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                  <Sparkles className="text-amber-600" size={24} />
-                </div>
-                <h2 className="text-xl font-bold text-slate-900">Shareholder Returns</h2>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                {/* Current Price */}
-                {shareholderReturnsSummary.currentPrice && (
-                  <div className="bg-white rounded-lg p-4 border border-amber-100">
-                    <p className="text-xs text-slate-600 font-semibold uppercase tracking-wide mb-2">Current Price</p>
-                    <p className="text-2xl font-bold text-slate-900">{formatCurrency(shareholderReturnsSummary.currentPrice)}</p>
-                  </div>
-                )}
-
-                {/* Dividend Yield */}
-                {shareholderReturnsSummary.hasDividend && shareholderReturnsSummary.dividendYield !== null && (
-                  <div className="bg-white rounded-lg p-4 border border-amber-100">
-                    <p className="text-xs text-slate-600 font-semibold uppercase tracking-wide mb-2">Dividend Yield</p>
-                    <p className="text-2xl font-bold text-amber-600">{shareholderReturnsSummary.dividendYield?.toFixed(2)}%</p>
-                  </div>
-                )}
-
-                {/* Payout Ratio */}
-                {shareholderReturnsSummary.hasPayoutRatio && shareholderReturnsSummary.payoutRatio !== null && (
-                  <div className="bg-white rounded-lg p-4 border border-amber-100">
-                    <p className="text-xs text-slate-600 font-semibold uppercase tracking-wide mb-2">Payout Ratio</p>
-                    <p className="text-2xl font-bold text-slate-900">{shareholderReturnsSummary.payoutRatio?.toFixed(1)}%</p>
-                  </div>
-                )}
-
-                {/* Buyback Yield */}
-                {shareholderReturnsSummary.isBuyingBack && shareholderReturnsSummary.buybackYield !== null && (
-                  <div className="bg-white rounded-lg p-4 border border-amber-100">
-                    <p className="text-xs text-slate-600 font-semibold uppercase tracking-wide mb-2">Buyback Yield</p>
-                    <p className="text-2xl font-bold text-amber-600">{shareholderReturnsSummary.buybackYield?.toFixed(2)}%</p>
-                  </div>
-                )}
-              </div>
-
-              <p className="text-slate-700 leading-relaxed text-sm">
-                {shareholderReturnsSummary.hasDividend ? (
-                  <>The company maintains an active dividend program with a sustainable payout ratio, demonstrating a commitment to returning capital to shareholders. </>
-                ) : (
-                  <>The company does not currently pay a dividend. </>
-                )}
-                {shareholderReturnsSummary.isBuyingBack ? (
-                  <>Share repurchases complement the total shareholder return strategy, reducing share count and supporting per-share metrics.</>
-                ) : (
-                  <>The company is not currently executing share repurchases.</>
-                )}
-              </p>
-            </div>
-          </ContentSection>
-        )}
-
-        {/* Macro Sensitivity Section - EXPANDED */}
+        {/* Macro Sensitivity Section - LESS COLORFUL */}
         {macroSummary.impacts.length > 0 && (
           <ContentSection delay={0.7}>
             <div className="mb-16 bg-white rounded-lg border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <BarChart3 className="text-purple-600" size={24} />
+                <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                  <BarChart3 className="text-slate-600" size={24} />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-slate-900">Macro Sensitivity</h2>
@@ -680,17 +658,16 @@ export const StockResearchSummary = ({
                 {macroSummary.impacts.map((item, idx) => (
                   <div 
                     key={idx} 
-                    className={`rounded-lg border p-5 transition-all duration-300 hover:shadow-sm ${getImpactColor(item.impact)}`}
+                    className="bg-slate-50 rounded-lg border border-slate-200 p-5 hover:shadow-sm hover:border-slate-300 transition-all duration-300"
                   >
-                    <div className="flex items-start gap-3 mb-3">
-                      <div className={`w-3 h-3 rounded-full mt-1 flex-shrink-0 ${getImpactDot(item.impact)}`}></div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-sm">{item.category}</p>
-                        <p className={`text-xs font-semibold mt-1 ${getImpactTextColor(item.impact)}`}>{item.impact} Impact</p>
-                      </div>
+                    <div className="flex items-start justify-between mb-3">
+                      <p className="font-semibold text-slate-900 text-sm">{item.category}</p>
+                      <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${getImpactTextColor(item.impact)}`}>
+                        {item.impact}
+                      </span>
                     </div>
                     {item.explanation && (
-                      <p className="text-sm leading-relaxed opacity-90">{item.explanation}</p>
+                      <p className="text-sm text-slate-700 leading-relaxed">{item.explanation}</p>
                     )}
                   </div>
                 ))}
