@@ -8,6 +8,7 @@ import { BalanceSheet } from "../components/BalanceSheet";
 import { ShareholderReturns } from "../components/ShareholderReturns";
 import { BusinessResearch } from "../components/BusinessResearch";
 import { StockResearchSummary } from "../components/StockResearchSummary";
+import ResearchLoadingAnimation from "../components/ResearchLoadingAnimation";
 
 const TABS = [
   "Summary",
@@ -71,19 +72,18 @@ const Research = () => {
       : "text-emerald-600";
 
   const MetricCard = ({ label, value, valueColor }) => (
-  <div className="bg-white border border-neutral-200 rounded-xl px-4 py-3">
-    <div className="text-xs uppercase tracking-wide text-neutral-500 mb-1">
-      {label}
+    <div className="bg-white border border-neutral-200 rounded-xl px-4 py-3">
+      <div className="text-xs uppercase tracking-wide text-neutral-500 mb-1">
+        {label}
+      </div>
+      <div className={`text-lg font-semibold ${valueColor}`}>
+        {value ?? "-"}
+      </div>
     </div>
-    <div className={`text-lg font-semibold ${valueColor}`}>
-      {value ?? "-"}
-    </div>
-  </div>
-);
+  );
 
   return (
     <div className="min-h-screen bg-transparent">
-      {/* Search (NO background) */}
       <div className="sticky top-0 z-40 bg-transparent backdrop-blur-sm">
         <form
           onSubmit={handleSearch}
@@ -108,161 +108,158 @@ const Research = () => {
 
       <div className="max-w-6xl mx-auto px-6 py-0">
         <div className="bg-white border-neutral-200 rounded-2xl mt-6 px-6 py-10">
-        {error && (
-          <div className="mb-6 text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-3">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="mb-6 text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-3">
+              {error}
+            </div>
+          )}
 
-        {!stockData && !loading && (
-          <div className="text-center py-28 text-neutral-400 text-lg">
-            Start by searching a stock symbol
-          </div>
-        )}
+          {loading && <ResearchLoadingAnimation ticker={searchQuery} />}
 
-        {stockData && (
-          <div className="space-y-10">
-            {/* Header */}
-            <div className="space-y-6">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h1 className="text-4xl font-light text-neutral-900">
-                    {stockData.company_name}
-                  </h1>
-                  <div className="mt-2 text-base text-neutral-500">
-                    {stockData.ticker} •{" "}
-                    {stockData.snapshot.metrics.sector}
+          {!stockData && !loading && (
+            <div className="text-center py-28 text-neutral-400 text-lg">
+              Start by searching a stock symbol
+            </div>
+          )}
+
+          {stockData && (
+            <div className="space-y-10">
+              <div className="space-y-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h1 className="text-4xl font-light text-neutral-900">
+                      {stockData.company_name}
+                    </h1>
+                    <div className="mt-2 text-base text-neutral-500">
+                      {stockData.ticker} •{" "}
+                      {stockData.snapshot.metrics.sector}
+                    </div>
+                  </div>
+
+                  <div className="text-right">
+                    <div className="text-3xl font-light">
+                      {stockData.snapshot.metrics.price}
+                    </div>
+                    <div
+                      className={`text-base font-medium ${changeColor(
+                        stockData.snapshot.metrics.day_change
+                      )}`}
+                    >
+                      {stockData.snapshot.metrics.day} (
+                      {stockData.snapshot.metrics.day_change})
+                    </div>
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <div className="text-3xl font-light">
-                    {stockData.snapshot.metrics.price}
+                <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <MetricCard
+                      label="Market Cap"
+                      value={stockData.snapshot.metrics.market_cap}
+                      valueColor="text-indigo-600"
+                    />
+                    <MetricCard
+                      label="Industry"
+                      value={stockData.snapshot.metrics.industry}
+                      valueColor="text-blue-600"
+                    />
+                    <MetricCard
+                      label="52W Range"
+                      value={stockData.snapshot.metrics.week_52_range}
+                      valueColor="text-emerald-600"
+                    />
+                    <MetricCard
+                      label="Dividend Yield"
+                      value={
+                        stockData.shareholder_returns.dividends.dividend_yield?.toFixed(2) + "%"
+                      }
+                      valueColor="text-amber-600"
+                    />
                   </div>
-                  <div
-                    className={`text-base font-medium ${changeColor(
-                      stockData.snapshot.metrics.day_change
-                    )}`}
+                </div>
+              </div>
+
+              <div className="flex gap-8 border-b border-neutral-200 overflow-x-auto">
+                {TABS.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`pb-4 text-base font-medium whitespace-nowrap transition-colors ${
+                      activeTab === tab
+                        ? "text-black border-b-2 border-black"
+                        : "text-neutral-500 hover:text-neutral-800"
+                    }`}
                   >
-                    {stockData.snapshot.metrics.day} (
-                    {stockData.snapshot.metrics.day_change})
-                  </div>
-                </div>
+                    {tab}
+                  </button>
+                ))}
               </div>
 
-              {/* Metrics Bar */}
-              <div className="bg-neutral-50 border border-neutral-200 rounded-2xl p-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <MetricCard
-                    label="Market Cap"
-                    value={stockData.snapshot.metrics.market_cap}
-                    valueColor="text-indigo-600"
-                  />
-                  <MetricCard
-                    label="Industry"
-                    value={stockData.snapshot.metrics.industry}
-                    valueColor="text-blue-600"
-                  />
-                  <MetricCard
-                    label="52W Range"
-                    value={stockData.snapshot.metrics.week_52_range}
-                    valueColor="text-emerald-600"
-                  />
-                  <MetricCard
-                    label="Dividend Yield"
-                    value={
-                      stockData.shareholder_returns.dividends.dividend_yield?.toFixed(2) + "%"
+              <div className="pt-6">
+                {activeTab === "Summary" && (
+                  <StockResearchSummary
+                    scoring_pillars={stockData.scoring_pillars}
+                    company_name={
+                      stockData.business_understanding.companyOverview.companyName
                     }
-                    valueColor="text-amber-600"
+                    company_logo_url={stockData.company_logo_url}
+                    shareholder_returns={stockData.shareholder_returns}
+                    ceo={stockData.business_understanding.leadershipGovernance.ceo}
+                    year_founded={
+                      stockData.business_understanding.companyOverview.founded
+                    }
+                    employees={
+                      stockData.business_understanding.operationalMetrics.employees
+                    }
+                    location={
+                      stockData.business_understanding.operationalMetrics.locations
+                    }
+                    price_targets={stockData.analyst_consensus}
+                    summary_data={stockData.company_summary}
+                    onMetricClick={handleMetricClick}
                   />
-                </div>
+                )}
+
+                {activeTab === "Business" && (
+                  <BusinessResearch data={stockData.business_understanding} />
+                )}
+
+                {activeTab === "Financials" && (
+                  <FinancialChart data={stockData} />
+                )}
+
+                {activeTab === "Valuation" && (
+                  <Valuation valuationData={stockData.valuation} />
+                )}
+
+                {activeTab === "Profitability & Efficiency" && (
+                  <ProfitabilityAndEfficiency
+                    financialData={stockData.profitability_and_efficiency}
+                  />
+                )}
+
+                {activeTab === "Balance Sheet" && (
+                  <BalanceSheet balanceSheet={stockData.balance_sheet} />
+                )}
+
+                {activeTab === "Shareholder Returns" && (
+                  <ShareholderReturns data={stockData.shareholder_returns} />
+                )}
+
+                {activeTab === "Outlook" && (
+                  <AnalystConsensus
+                    consensusData={stockData.analyst_consensus}
+                  />
+                )}
               </div>
             </div>
-
-            {/* Tabs */}
-            <div className="flex gap-8 border-b border-neutral-200 overflow-x-auto">
-              {TABS.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`pb-4 text-base font-medium whitespace-nowrap transition-colors ${
-                    activeTab === tab
-                      ? "text-black border-b-2 border-black"
-                      : "text-neutral-500 hover:text-neutral-800"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Content */}
-            <div className="pt-6">
-              {activeTab === "Summary" && (
-                <StockResearchSummary
-                  scoring_pillars={stockData.scoring_pillars}
-                  company_name={
-                    stockData.business_understanding.companyOverview.companyName
-                  }
-                  company_logo_url={stockData.company_logo_url}
-                  shareholder_returns={stockData.shareholder_returns}
-                  ceo={stockData.business_understanding.leadershipGovernance.ceo}
-                  year_founded={
-                    stockData.business_understanding.companyOverview.founded
-                  }
-                  employees={
-                    stockData.business_understanding.operationalMetrics.employees
-                  }
-                  location={
-                    stockData.business_understanding.operationalMetrics.locations
-                  }
-                  price_targets={stockData.analyst_consensus}
-                  summary_data={stockData.company_summary}
-                  onMetricClick={handleMetricClick}
-                />
-              )}
-
-              {activeTab === "Business" && (
-                <BusinessResearch data={stockData.business_understanding} />
-              )}
-
-              {activeTab === "Financials" && (
-                <FinancialChart data={stockData} />
-              )}
-
-              {activeTab === "Valuation" && (
-                <Valuation valuationData={stockData.valuation} />
-              )}
-
-              {activeTab === "Profitability & Efficiency" && (
-                <ProfitabilityAndEfficiency
-                  financialData={stockData.profitability_and_efficiency}
-                />
-              )}
-
-              {activeTab === "Balance Sheet" && (
-                <BalanceSheet balanceSheet={stockData.balance_sheet} />
-              )}
-
-              {activeTab === "Shareholder Returns" && (
-                <ShareholderReturns data={stockData.shareholder_returns} />
-              )}
-
-              {activeTab === "Outlook" && (
-                <AnalystConsensus
-                  consensusData={stockData.analyst_consensus}
-                />
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-/* Small helper component for metrics */
 const Metric = ({ label, value, color }) => (
   <div>
     <div className="text-sm text-neutral-500 mb-1">{label}</div>

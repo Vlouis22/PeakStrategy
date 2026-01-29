@@ -1,18 +1,27 @@
 import React from 'react';
+import { TrendingUp, Shield, BarChart3, Target, Zap, Lightbulb } from 'lucide-react';
 
 export const ProfitabilityAndEfficiency = ({ financialData }) => {
   if (!financialData) {
     return (
-      <div style={{ padding: '24px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-        <div style={{ color: '#666', fontSize: '14px' }}>No financial data available</div>
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+          <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-sm">
+            <p className="text-slate-600">No financial data available</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (financialData.error) {
     return (
-      <div style={{ padding: '24px', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-        <div style={{ color: '#d32f2f', fontSize: '14px' }}>{financialData.error}</div>
+      <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+          <div className="bg-white rounded-lg border border-slate-200 p-8 shadow-sm">
+            <p className="text-red-600">{financialData.error}</p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -39,189 +48,238 @@ export const ProfitabilityAndEfficiency = ({ financialData }) => {
   };
 
   const getQualityRating = (roic) => {
-    if (!roic) return { label: 'Insufficient Data', color: '#666' };
-    if (roic >= 15) return { label: 'Excellent', color: '#2e7d32' };
-    if (roic >= 10) return { label: 'Good', color: '#558b2f' };
-    if (roic >= 5) return { label: 'Fair', color: '#f57c00' };
-    return { label: 'Poor', color: '#c62828' };
+    if (!roic) return { label: 'Insufficient Data', color: 'bg-slate-100 text-slate-700 border-slate-300' };
+    if (roic >= 15) return { label: 'Excellent', color: 'bg-emerald-100 text-emerald-700 border-emerald-300' };
+    if (roic >= 10) return { label: 'Good', color: 'bg-emerald-50 text-emerald-600 border-emerald-200' };
+    if (roic >= 5) return { label: 'Fair', color: 'bg-amber-100 text-amber-700 border-amber-300' };
+    return { label: 'Poor', color: 'bg-red-100 text-red-700 border-red-300' };
   };
 
   const qualityRating = getQualityRating(metrics.roic);
 
+  const ContentSection = ({ children, delay = 0 }) => (
+    <div 
+      className="opacity-0 animate-fade-in"
+      style={{ animationDelay: `${delay}s`, animationFillMode: 'forwards' }}
+    >
+      {children}
+    </div>
+  );
+
   return (
-    <div style={{
-      padding: '32px',
-      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      maxWidth: '1200px',
-      background: 'white',
-      color: 'black'
-    }}>
-      {/* Header */}
-      <div style={{ marginBottom: '32px', borderBottom: '2px solid black', paddingBottom: '16px' }}>
-        <h2 style={{ margin: '0 0 8px 0', fontSize: '24px', fontWeight: '600' }}>
-          Profitability & Efficiency
-        </h2>
-        <p style={{ margin: 0, fontSize: '14px', color: '#555' }}>
-          Quality of Business Analysis • {ticker}
-        </p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
+      <style>{`
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+      `}</style>
 
-      {/* Key Quality Indicator - ROIC Highlighted */}
-      <div style={{
-        background: '#f8f9fa',
-        border: '2px solid black',
-        padding: '24px',
-        marginBottom: '32px',
-        borderRadius: '4px'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <div style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px', fontWeight: '600' }}>
-              Return on Invested Capital (ROIC) ⭐
-            </div>
-            <div style={{ fontSize: '36px', fontWeight: '700', marginBottom: '4px' }}>
-              {formatPercent(metrics.roic)}
-            </div>
-            <div style={{ fontSize: '13px', color: '#666' }}>
-              Capital Efficiency & Competitive Advantage
-            </div>
-          </div>
-          <div style={{
-            padding: '12px 24px',
-            background: qualityRating.color,
-            color: 'white',
-            borderRadius: '4px',
-            fontWeight: '600',
-            fontSize: '16px'
-          }}>
-            {qualityRating.label}
-          </div>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        
+        {/* Hero Header */}
+        <div className="mb-14 relative opacity-0 animate-fade-in" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight mb-2">
+            Profitability & Efficiency
+          </h1>
+          <p className="text-slate-600 text-sm mt-1">Quality of Business Analysis • {ticker}</p>
         </div>
-      </div>
 
-      {/* Core Return Metrics */}
-      <div style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-          Return Metrics
-        </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-          <MetricCard title="ROE" value={formatPercent(metrics.roe)} subtitle="Return on Equity" />
-          <MetricCard title="ROA" value={formatPercent(metrics.roa)} subtitle="Return on Assets" />
-          <MetricCard title="ROIC" value={formatPercent(metrics.roic)} subtitle="Return on Invested Capital" highlight />
-        </div>
-      </div>
-
-      {/* Margin Analysis */}
-      <div style={{ marginBottom: '32px' }}>
-        <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-          Margin Profile
-        </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-          <MetricCard title="Gross Margin" value={formatPercent(metrics.gross_margin)} subtitle="Pricing Power" />
-          <MetricCard title="Operating Margin" value={formatPercent(metrics.operating_margin)} subtitle="Operational Efficiency" />
-          <MetricCard title="Net Margin" value={formatPercent(metrics.net_margin)} subtitle="Bottom Line Profitability" />
-        </div>
-      </div>
-
-      {/* Trend Analysis */}
-      {trends && (
-        <>
-          {/* Margin Trends */}
-          <div style={{ marginBottom: '32px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Margin Trends (5-Year)
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-              <TrendTable 
-                title="Gross Margin Trend" 
-                data={trends.gross_margin_trend} 
-                formatter={formatPercent}
-              />
-              <TrendTable 
-                title="Operating Margin Trend" 
-                data={trends.operating_margin_trend} 
-                formatter={formatPercent}
-              />
+        {/* Key Quality Indicator - ROIC Highlighted */}
+        <ContentSection delay={0.2}>
+          <div className={`mb-16 rounded-lg border p-8 shadow-sm hover:shadow-md transition-shadow duration-300 ${qualityRating.color}`}>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-white/50 flex items-center justify-center">
+                    <Target className="text-slate-700" size={24} />
+                  </div>
+                  <div className="text-xs font-semibold text-slate-700 uppercase tracking-wide">
+                    Return on Invested Capital (ROIC) ⭐
+                  </div>
+                </div>
+                <div className="text-4xl font-bold mb-2 text-slate-900">
+                  {formatPercent(metrics.roic)}
+                </div>
+                <div className="text-sm text-slate-700">
+                  Capital Efficiency & Competitive Advantage
+                </div>
+              </div>
+              <div className={`px-6 py-3 rounded-lg border font-semibold text-base ${qualityRating.color}`}>
+                {qualityRating.label}
+              </div>
             </div>
           </div>
+        </ContentSection>
 
-          {/* Return Trends */}
-          <div style={{ marginBottom: '32px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Return Trends (5-Year)
-            </h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-              <TrendTable 
-                title="ROE Trend" 
-                data={trends.roe_trend} 
-                formatter={formatPercent}
-              />
-              <TrendTable 
-                title="ROIC Trend" 
-                data={trends.roic_trend} 
-                formatter={formatPercent}
-                highlight
-              />
+        {/* Core Return Metrics */}
+        <ContentSection delay={0.3}>
+          <div className="mb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                <TrendingUp className="text-slate-600" size={24} />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">Return Metrics</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <MetricCard title="ROE" value={formatPercent(metrics.roe)} subtitle="Return on Equity" />
+              <MetricCard title="ROA" value={formatPercent(metrics.roa)} subtitle="Return on Assets" />
+              <MetricCard title="ROIC" value={formatPercent(metrics.roic)} subtitle="Return on Invested Capital" highlight />
             </div>
           </div>
-        </>
-      )}
+        </ContentSection>
 
-      {/* Operating Leverage */}
-      {operating_leverage && operating_leverage.data && operating_leverage.data.length > 0 && (
-        <div style={{ marginBottom: '32px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Operating Leverage Analysis
-          </h3>
-          <p style={{ fontSize: '13px', color: '#666', marginBottom: '16px' }}>
-            {operating_leverage.interpretation}
-          </p>
-          <div style={{ border: '1px solid #ddd' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#f5f5f5', borderBottom: '2px solid black' }}>
-                  <th style={tableHeaderStyle}>Year</th>
-                  <th style={tableHeaderStyle}>Revenue Growth</th>
-                  <th style={tableHeaderStyle}>Operating Income Growth</th>
-                  <th style={tableHeaderStyle}>Leverage Ratio</th>
-                </tr>
-              </thead>
-              <tbody>
-                {operating_leverage.data.map((item, idx) => (
-                  <tr key={idx} style={{ borderBottom: '1px solid #e0e0e0' }}>
-                    <td style={tableCellStyle}>{item.year}</td>
-                    <td style={tableCellStyle}>{formatPercent(item.revenue_growth)}</td>
-                    <td style={tableCellStyle}>{formatPercent(item.operating_income_growth)}</td>
-                    <td style={{
-                      ...tableCellStyle,
-                      fontWeight: '600',
-                      color: item.leverage_ratio > 1 ? '#2e7d32' : item.leverage_ratio < 1 ? '#c62828' : 'black'
-                    }}>
-                      {item.leverage_ratio ? item.leverage_ratio.toFixed(2) + 'x' : 'N/A'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        {/* Margin Analysis */}
+        <ContentSection delay={0.4}>
+          <div className="mb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                <BarChart3 className="text-slate-600" size={24} />
+              </div>
+              <h2 className="text-xl font-bold text-slate-900">Margin Profile</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <MetricCard title="Gross Margin" value={formatPercent(metrics.gross_margin)} subtitle="Pricing Power" />
+              <MetricCard title="Operating Margin" value={formatPercent(metrics.operating_margin)} subtitle="Operational Efficiency" />
+              <MetricCard title="Net Margin" value={formatPercent(metrics.net_margin)} subtitle="Bottom Line Profitability" />
+            </div>
           </div>
-        </div>
-      )}
+        </ContentSection>
 
-      {/* Interpretation Guide */}
-      <div style={{
-        background: '#f8f9fa',
-        padding: '20px',
-        borderLeft: '4px solid black',
-        fontSize: '13px',
-        lineHeight: '1.6'
-      }}>
-        <div style={{ fontWeight: '600', marginBottom: '8px' }}>Quality Business Indicators:</div>
-        <ul style={{ margin: 0, paddingLeft: '20px' }}>
-          <li><strong>ROIC &gt; 15%:</strong> Indicates strong competitive advantage and efficient capital allocation</li>
-          <li><strong>ROE &gt; 15%:</strong> Management effectively generating returns for shareholders</li>
-          <li><strong>Stable/Expanding Margins:</strong> Pricing power and operational discipline</li>
-          <li><strong>Operating Leverage &gt; 1:</strong> Scalable business model with operating efficiency</li>
-        </ul>
+        {/* Trend Analysis */}
+        {trends && (
+          <>
+            {/* Margin Trends */}
+            <ContentSection delay={0.5}>
+              <div className="mb-16">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                    <Shield className="text-slate-600" size={24} />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900">Margin Trends (5-Year)</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <TrendTable 
+                    title="Gross Margin Trend" 
+                    data={trends.gross_margin_trend} 
+                    formatter={formatPercent}
+                  />
+                  <TrendTable 
+                    title="Operating Margin Trend" 
+                    data={trends.operating_margin_trend} 
+                    formatter={formatPercent}
+                  />
+                </div>
+              </div>
+            </ContentSection>
+
+            {/* Return Trends */}
+            <ContentSection delay={0.6}>
+              <div className="mb-16">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                    <Zap className="text-slate-600" size={24} />
+                  </div>
+                  <h2 className="text-xl font-bold text-slate-900">Return Trends (5-Year)</h2>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <TrendTable 
+                    title="ROE Trend" 
+                    data={trends.roe_trend} 
+                    formatter={formatPercent}
+                  />
+                  <TrendTable 
+                    title="ROIC Trend" 
+                    data={trends.roic_trend} 
+                    formatter={formatPercent}
+                    highlight
+                  />
+                </div>
+              </div>
+            </ContentSection>
+          </>
+        )}
+
+        {/* Operating Leverage */}
+        {operating_leverage && operating_leverage.data && operating_leverage.data.length > 0 && (
+          <ContentSection delay={0.7}>
+            <div className="mb-16 bg-white rounded-lg border border-slate-200 p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                  <BarChart3 className="text-slate-600" size={24} />
+                </div>
+                <h2 className="text-xl font-bold text-slate-900">Operating Leverage Analysis</h2>
+              </div>
+              <p className="text-sm text-slate-600 mb-6 ml-13">
+                {operating_leverage.interpretation}
+              </p>
+              <div className="overflow-x-auto border border-slate-200 rounded-lg shadow-sm">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-200">
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Year</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Revenue Growth</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Operating Income Growth</th>
+                      <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Leverage Ratio</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {operating_leverage.data.map((item, idx) => (
+                      <tr key={idx} className={`border-b border-slate-200 hover:bg-slate-50 transition-colors ${
+                        idx % 2 === 0 ? "bg-white" : "bg-slate-50/50"
+                      }`}>
+                        <td className="px-4 py-3 font-semibold text-slate-900">{item.year}</td>
+                        <td className="px-4 py-3 text-slate-700">{formatPercent(item.revenue_growth)}</td>
+                        <td className="px-4 py-3 text-slate-700">{formatPercent(item.operating_income_growth)}</td>
+                        <td className={`px-4 py-3 font-bold ${
+                          item.leverage_ratio > 1 ? 'text-emerald-600' : item.leverage_ratio < 1 ? 'text-red-600' : 'text-slate-900'
+                        }`}>
+                          {item.leverage_ratio ? item.leverage_ratio.toFixed(2) + 'x' : 'N/A'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </ContentSection>
+        )}
+
+        {/* Interpretation Guide */}
+        <ContentSection delay={0.8}>
+          <div className="relative rounded-lg overflow-hidden p-8 text-white">
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-700 to-slate-900"></div>
+            <div className="absolute inset-0 opacity-5" style={{
+              backgroundImage: 'linear-gradient(45deg, #ffffff 1px, transparent 1px)',
+              backgroundSize: '20px 20px'
+            }}></div>
+            <div className="relative flex items-start gap-4">
+              <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <Lightbulb className="text-white" size={24} />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold mb-3">Quality Business Indicators</h2>
+                <ul className="space-y-2 text-base leading-relaxed opacity-95">
+                  <li><strong>ROIC &gt; 15%:</strong> Indicates strong competitive advantage and efficient capital allocation</li>
+                  <li><strong>ROE &gt; 15%:</strong> Management effectively generating returns for shareholders</li>
+                  <li><strong>Stable/Expanding Margins:</strong> Pricing power and operational discipline</li>
+                  <li><strong>Operating Leverage &gt; 1:</strong> Scalable business model with operating efficiency</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </ContentSection>
+
       </div>
     </div>
   );
@@ -229,47 +287,45 @@ export const ProfitabilityAndEfficiency = ({ financialData }) => {
 
 // Supporting Components
 const MetricCard = ({ title, value, subtitle, highlight }) => (
-  <div style={{
-    border: highlight ? '2px solid black' : '1px solid #ddd',
-    padding: '16px',
-    borderRadius: '4px',
-    background: highlight ? '#fffde7' : 'white'
-  }}>
-    <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px', fontWeight: '500' }}>
+  <div className={`rounded-lg p-5 border transition-all duration-300 hover:shadow-sm ${
+    highlight 
+      ? 'border-slate-300 bg-gradient-to-br from-slate-50 to-blue-50' 
+      : 'border-slate-200 bg-white hover:border-slate-300'
+  }`}>
+    <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">
       {title}
     </div>
-    <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '4px' }}>
+    <div className="text-2xl font-bold text-slate-900 mb-2">
       {value}
     </div>
-    <div style={{ fontSize: '11px', color: '#888' }}>
+    <div className="text-xs text-slate-600">
       {subtitle}
     </div>
   </div>
 );
 
 const TrendTable = ({ title, data, formatter, highlight }) => (
-  <div>
-    <div style={{
-      fontSize: '13px',
-      fontWeight: '600',
-      marginBottom: '8px',
-      color: highlight ? 'black' : '#333'
-    }}>
+  <div className={`rounded-lg border p-5 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 ${
+    highlight ? 'border-slate-300' : 'border-slate-200'
+  }`}>
+    <div className="text-sm font-bold text-slate-900 mb-4">
       {title}
     </div>
-    <div style={{ border: highlight ? '2px solid black' : '1px solid #ddd' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+    <div className="overflow-x-auto border border-slate-200 rounded-lg">
+      <table className="w-full">
         <thead>
-          <tr style={{ background: highlight ? '#fffde7' : '#f5f5f5', borderBottom: '1px solid #ddd' }}>
-            <th style={{ ...tableHeaderStyle, fontSize: '12px' }}>Year</th>
-            <th style={{ ...tableHeaderStyle, fontSize: '12px' }}>Value</th>
+          <tr className={`border-b border-slate-200 ${highlight ? 'bg-slate-50' : 'bg-slate-50'}`}>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Year</th>
+            <th className="px-4 py-3 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Value</th>
           </tr>
         </thead>
         <tbody>
           {data.map((item, idx) => (
-            <tr key={idx} style={{ borderBottom: '1px solid #e0e0e0' }}>
-              <td style={{ ...tableCellStyle, fontSize: '12px' }}>{item.year}</td>
-              <td style={{ ...tableCellStyle, fontSize: '12px', fontWeight: '600' }}>
+            <tr key={idx} className={`border-b border-slate-200 hover:bg-slate-50 transition-colors ${
+              idx % 2 === 0 ? "bg-white" : "bg-slate-50/50"
+            }`}>
+              <td className="px-4 py-3 text-sm text-slate-700">{item.year}</td>
+              <td className="px-4 py-3 text-sm font-bold text-slate-900">
                 {formatter(item.value)}
               </td>
             </tr>
@@ -279,17 +335,3 @@ const TrendTable = ({ title, data, formatter, highlight }) => (
     </div>
   </div>
 );
-
-const tableHeaderStyle = {
-  padding: '12px',
-  textAlign: 'left',
-  fontSize: '11px',
-  fontWeight: '600',
-  textTransform: 'uppercase',
-  letterSpacing: '0.5px'
-};
-
-const tableCellStyle = {
-  padding: '12px',
-  fontSize: '13px'
-};
