@@ -90,6 +90,7 @@ class UserService:
             raise ExternalServiceError("Firebase", str(e))
     
     def update_user_profile(self, user_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        print("\n\nStep 2: Updating user profile with data:", data, "\n\n")
         updates = {}
 
         if 'displayName' in data:
@@ -104,19 +105,22 @@ class UserService:
             updates['preferences'] = data['preferences']
 
         if not updates:
-            raise ValidationError({}, "No valid fields provided for update")
+            # No valid fields to update
+            return self.get_user_profile(user_id)
 
         try:
             # Update Firebase Auth
             if 'display_name' in updates:
-                self.auth.update_user(
-                    user_id,
-                    display_name=updates['display_name']
-                )
+                self.auth.update_user(user_id, display_name=updates['display_name'])
+
+            # 🔹 Ensure Firestore doc exists
+            user_ref = self.db.collection('users').document(user_id)
+            if not user_ref.get().exists:
+                user_ref.set({'created_at': SERVER_TIMESTAMP, 'status': 'active'})
 
             # Update Firestore
             updates['updated_at'] = SERVER_TIMESTAMP
-            self.db.collection('users').document(user_id).update(updates)
+            user_ref.update(updates)
 
             return self.get_user_profile(user_id)
 

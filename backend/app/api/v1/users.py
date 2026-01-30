@@ -79,18 +79,23 @@ def create_profile():
 @users_bp.route('/profile', methods=['PUT'])
 @limiter.limit("10 per minute")
 def update_profile():
-    print("\n\nUpdate profile endpoint hit\n\n")
+    print("\n\nStep 0: Update profile endpoint hit\n\n")
     try:
         user_id = request.user_id
-        data = request.get_json() or {}
+        data = request.get_json(force=True) or {}
+        print("Raw request data:", request.data)
 
+        print("Checking if there's data to update...")
         if not data:
             return jsonify({
                 'success': True,
                 'message': 'No profile changes'
             }), 200
+        print("There is data to update:", data)
+
 
         user_service = UserService()
+        print("\n\nStep 1: Updating user profile with data:", data, "\n\n")
         updated_profile = user_service.update_user_profile(user_id, data)
 
         current_app.logger.info(f"User profile updated: {user_id}")

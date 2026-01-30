@@ -5,6 +5,7 @@ import PortfolioBuilder from '../pages/PortfolioBuilder';
 import Chat from '../pages/Chat';
 import Signup from '../pages/Signup';
 import Login from '../pages/Login';
+import Settings from '../pages/Settings';
 
 const AppRoutes = () => {
   return (
@@ -15,6 +16,7 @@ const AppRoutes = () => {
       <Route path="/chat" element={<Chat />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/settings" element={<Settings />} />
     </Routes>
   );
 };

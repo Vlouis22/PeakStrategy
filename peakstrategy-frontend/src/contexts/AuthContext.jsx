@@ -27,7 +27,7 @@ export function AuthProvider({ children }) {
           displayName,
         });
       }
-      
+
       return userCredential;
     } catch (error) {
       console.error('Signup error:', error);
@@ -90,7 +90,8 @@ export function AuthProvider({ children }) {
   };
 
   // Update user profile
-const updateBackendProfile = async (displayName) => {
+const updateBackendProfile = async ({displayName}) => {
+  console.log("\n\nUpdating backend profile with displayName:", displayName, "\n\n");
   const response = await fetch(`${BACKEND_URL}/api/v1/users/profile`, {
     method: 'PUT',
     headers: {

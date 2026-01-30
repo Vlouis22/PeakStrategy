@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 const Settings = () => {
-  const { currentUser, getProfile, updateProfile } = useAuth();
+  const { currentUser, getProfile, updateBackendProfile } = useAuth();
   const [profile, setProfile] = useState({
     display_name: '',
     email: '',
@@ -14,14 +14,19 @@ const Settings = () => {
   const [success, setSuccess] = useState('');
 
   useEffect(() => {
+    if (!currentUser) {
+      setLoading(false); // user is not logged in
+      return;
+    }
     fetchProfile();
   }, [currentUser]);
 
   const fetchProfile = async () => {
     try {
       const data = await getProfile();
+      console.log("Fetched profile data:", data);
       setProfile({
-        display_name: data.display_name || '',
+        display_name: data.display_name || currentUser?.displayName || '',
         email: data.email || currentUser?.email || '',
         created_at: data.created_at
       });
@@ -40,8 +45,8 @@ const Settings = () => {
     setSaving(true);
 
     try {
-      await updateProfile({
-        display_name: profile.display_name.trim()
+      await updateBackendProfile({
+        displayName: profile.display_name.trim()
       });
       setSuccess('Profile updated successfully!');
       setTimeout(() => setSuccess(''), 3000);
@@ -60,6 +65,7 @@ const Settings = () => {
     }));
   };
 
+  // Show loading
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -68,6 +74,19 @@ const Settings = () => {
     );
   }
 
+  // Show message if user is not logged in
+  if (!currentUser) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">No profile found</h1>
+          <p className="text-gray-600">Please sign in to access your Settings.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Main settings form
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
@@ -166,7 +185,6 @@ const Settings = () => {
           <button
             className="px-4 py-2 border border-gray-300 text-gray-700 font-medium rounded-md hover:bg-gray-50"
             onClick={() => {
-              // Add password reset functionality here
               alert('Password reset functionality coming soon!');
             }}
           >
