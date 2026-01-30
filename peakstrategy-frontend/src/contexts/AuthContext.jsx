@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { auth } from '../firebase.js';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut, onAuthStateChanged } from 'firebase/auth';
+import { updateProfile as firebaseUpdateProfile } from 'firebase/auth';
 
 const AuthContext = createContext();
 
@@ -22,7 +23,9 @@ export function AuthProvider({ children }) {
       
       // Update the user's display name if provided
       if (displayName && userCredential.user) {
-        await updateProfile(userCredential.user, { displayName });
+        await firebaseUpdateProfile(userCredential.user, {
+          displayName,
+        });
       }
       
       return userCredential;
@@ -87,29 +90,23 @@ export function AuthProvider({ children }) {
   };
 
   // Update user profile
-  const updateProfile = async (profileData) => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/v1/users/profile`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`,
-        },
-        credentials: 'include',
-        body: JSON.stringify(profileData),
-      });
+const updateBackendProfile = async (displayName) => {
+  const response = await fetch(`${BACKEND_URL}/api/v1/users/profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${await auth.currentUser.getIdToken()}`,
+    },
+    body: JSON.stringify({ displayName }),
+  });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to update profile');
-      }
+  if (!response.ok) {
+    throw new Error('Failed to update profile');
+  }
 
-      return await response.json();
-    } catch (error) {
-      console.error('Update profile error:', error);
-      throw error;
-    }
-  };
+  return response.json();
+};
+
 
   // Listen for auth state changes
   useEffect(() => {
@@ -133,7 +130,7 @@ export function AuthProvider({ children }) {
     login,
     logout,
     getProfile,
-    updateProfile,
+    updateBackendProfile, 
   };
 
   return (

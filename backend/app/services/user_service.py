@@ -7,6 +7,8 @@ from ..utils.exceptions import (
     ExternalServiceError
 )
 from .firebase_service import FirebaseService
+from google.cloud.firestore import SERVER_TIMESTAMP
+
 
 class UserService:
     """User management service."""
@@ -33,8 +35,8 @@ class UserService:
                 profile_data = {
                     'email': user_record.email,
                     'display_name': user_record.display_name or '',
-                    'created_at': self.db.SERVER_TIMESTAMP,
-                    'updated_at': self.db.SERVER_TIMESTAMP,
+                    'created_at': SERVER_TIMESTAMP,
+                    'updated_at': SERVER_TIMESTAMP,
                     'status': 'active'
                 }
                 self.db.collection('users').document(user_id).set(profile_data)
@@ -60,35 +62,65 @@ class UserService:
             if "not found" in str(e).lower():
                 raise ResourceNotFoundError("User", user_id)
             raise ExternalServiceError("Firebase", str(e))
-    
-    def update_user_profile(self, user_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Update user profile."""
-        # For now, skip schema validation and just update allowed fields
-        allowed_fields = ['display_name', 'preferences']
-        updates = {}
-        
-        for field in allowed_fields:
-            if field in data:
-                updates[field] = data[field]
-        
-        if not updates:
-            raise ValidationError({}, "No valid fields provided for update")
-        
+            
+    def create_user_profile(self, user_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Create initial user profile."""
         try:
-            # Update display name in Firebase Auth if provided
-            if 'display_name' in updates:
-                self.auth.update_user(user_id, display_name=updates['display_name'])
+            # Get Firebase user record
+            user_record = self.auth.get_user(user_id)
             
-            # Update Firestore document
-            updates['updated_at'] = self.db.SERVER_TIMESTAMP
-            self.db.collection('users').document(user_id).update(updates)
+            # Default profile data
+            profile_data = {
+                'email': user_record.email,
+                'display_name': data.get('display_name') or user_record.display_name or user_record.email.split('@')[0],
+                'created_at': SERVER_TIMESTAMP,
+                'updated_at': SERVER_TIMESTAMP,
+                'status': 'active',
+                'preferences': data.get('preferences', {})
+            }
             
-            # Return updated profile
-            return self.get_user_profile(user_id)
+            # Create the document
+            self.db.collection('users').document(user_id).set(profile_data)
+            
+            # Return the created profile
+            profile_data['uid'] = user_id
+            return profile_data
             
         except Exception as e:
-            if "not found" in str(e).lower():
-                raise ResourceNotFoundError("User", user_id)
+            raise ExternalServiceError("Firebase", str(e))
+    
+    def update_user_profile(self, user_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        updates = {}
+
+        if 'displayName' in data:
+            if not isinstance(data['displayName'], str) or not data['displayName'].strip():
+                raise ValidationError(
+                    {'displayName': 'Must be a non-empty string'},
+                    'Invalid display name'
+                )
+            updates['display_name'] = data['displayName'].strip()
+
+        if 'preferences' in data:
+            updates['preferences'] = data['preferences']
+
+        if not updates:
+            raise ValidationError({}, "No valid fields provided for update")
+
+        try:
+            # Update Firebase Auth
+            if 'display_name' in updates:
+                self.auth.update_user(
+                    user_id,
+                    display_name=updates['display_name']
+                )
+
+            # Update Firestore
+            updates['updated_at'] = SERVER_TIMESTAMP
+            self.db.collection('users').document(user_id).update(updates)
+
+            return self.get_user_profile(user_id)
+
+        except Exception as e:
             raise ExternalServiceError("Firebase", str(e))
     
     def search_users(self, email: str = '', display_name: str = '', 
@@ -146,7 +178,7 @@ class UserService:
         """Update user's last login timestamp."""
         try:
             self.db.collection('users').document(user_id).update({
-                'last_login_at': self.db.SERVER_TIMESTAMP
+                'last_login_at': SERVER_TIMESTAMP
             })
         except Exception:
             # Non-critical, just log it

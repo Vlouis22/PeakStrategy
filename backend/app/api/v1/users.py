@@ -4,6 +4,7 @@ from flask_limiter.util import get_remote_address
 from ...services.user_service import UserService
 from ...utils.exceptions import AuthError, ResourceNotFoundError, PermissionDeniedError
 from ...middlewares.auth_middleware import auth_required
+from django.core.exceptions import ValidationError
 
 # Create blueprint
 users_bp = Blueprint('users', __name__, url_prefix='/users')
@@ -47,32 +48,66 @@ def get_profile():
             'error': 'Failed to retrieve profile'
         }), 500
 
-@users_bp.route('/profile', methods=['PUT'])
+@users_bp.route('/profile', methods=['POST'])
 @limiter.limit("10 per minute")
-def update_profile():
-    """Update the current user's profile."""
+def create_profile():
+    """Create a new user profile."""
+    print("\n\nCreate profile endpoint hit\n\n")
     try:
         user_id = request.user_id
         data = request.get_json()
         
         user_service = UserService()
+        created_profile = user_service.create_user_profile(user_id, data)
+        
+        current_app.logger.info(f"User profile created: {user_id}")
+        
+        return jsonify({
+            'success': True,
+            'data': created_profile,
+            'message': 'Profile created successfully'
+        }), 201
+        
+    except Exception as e:
+        current_app.logger.error(f"Error creating profile: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to create profile'
+        }), 500
+    
+
+@users_bp.route('/profile', methods=['PUT'])
+@limiter.limit("10 per minute")
+def update_profile():
+    print("\n\nUpdate profile endpoint hit\n\n")
+    try:
+        user_id = request.user_id
+        data = request.get_json() or {}
+
+        if not data:
+            return jsonify({
+                'success': True,
+                'message': 'No profile changes'
+            }), 200
+
+        user_service = UserService()
         updated_profile = user_service.update_user_profile(user_id, data)
-        
+
         current_app.logger.info(f"User profile updated: {user_id}")
-        
+
         return jsonify({
             'success': True,
             'data': updated_profile,
             'message': 'Profile updated successfully'
         }), 200
-        
+
     except ValidationError as e:
         return jsonify({
             'success': False,
             'error': 'Validation failed',
             'details': e.details
         }), 400
-        
+
     except Exception as e:
         current_app.logger.error(f"Error updating profile: {str(e)}")
         return jsonify({

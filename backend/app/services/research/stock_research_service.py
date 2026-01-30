@@ -161,11 +161,13 @@ class StockResearchService:
         
         # Refresh snapshot if needed
         if refresh_needs.get('snapshot', True):
+            print("\n\nRefreshing snapshot data...\n\n")
             stock_info['snapshot'] = self.snapshot_analyzer.get_snapshot_row()
             component_timestamps['snapshot'] = now_iso
         
         # Refresh valuation if needed
         if refresh_needs.get('valuation', True):
+            print("\n\nRefreshing Valuation data...\n\n")
             valuation = self.valuation_analyzer.get_stock_valuation()
             if valuation.get("success"):
                 stock_info['valuation'] = valuation.get("valuations", {})
@@ -175,6 +177,7 @@ class StockResearchService:
         
         # Refresh other data if needed
         if refresh_needs.get('other', True):
+            print("\n\nRefreshing other data...\n\n")
             stock_info['business_understanding'] = self.business_analyzer.get_business_intelligence()
             stock_info['financial_foundation'] = self.financial_analyzer.get_financial_foundation()
             stock_info['analyst_consensus'] = self.analyst_analyzer.get_analyst_consensus()
