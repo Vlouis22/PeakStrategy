@@ -210,8 +210,8 @@ class StockResearchService:
             "component_timestamps": component_timestamps
         }
         
-        # Generate summary if any data was refreshed
-        if any(refresh_needs.values()):
+        # Generate summary if all datas was refreshed
+        if refresh_needs.get('other', True):
             summary = self.summary_generator.generate_summary(stock_info)
             stock_info["company_summary"] = summary
         

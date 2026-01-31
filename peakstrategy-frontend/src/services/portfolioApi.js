@@ -259,6 +259,58 @@ export const portfolioApi = {
   // If you need stock price endpoints, you'll need to create separate routes for them
 };
 
+export const portfolioBuilderApi = {
+  // Get all hedge funds
+  getHedgeFunds: async () => {
+    try {
+      const headers = await getAuthHeaders();
+
+      const response = await fetch(`${BACKEND_URL}/api/v1/portfolio-builder/hedge-funds`, {
+        method: 'GET',
+        headers,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || error.message || 'Failed to fetch hedge funds');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Get hedge funds error:', error);
+      throw error;
+    }
+  },
+
+  analyzePortfolios: async (companyNames) => {
+    console.log("API companies:", companyNames);
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+        ...await getAuthHeaders()
+      };
+
+      const response = await fetch(`${BACKEND_URL}/api/v1/portfolio-builder/analyze`, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ companies: companyNames })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to analyze portfolios');
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Analyze portfolios error:', error);
+      throw error;
+    }
+  }
+
+  // You can add more portfolio-builder-specific endpoints here later
+};
+
 // Ticker validation helper
 export const validateTicker = (symbol) => {
   const pattern = /^[A-Z]{1,5}$/;

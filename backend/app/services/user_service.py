@@ -90,7 +90,6 @@ class UserService:
             raise ExternalServiceError("Firebase", str(e))
     
     def update_user_profile(self, user_id: str, data: Dict[str, Any]) -> Dict[str, Any]:
-        print("\n\nStep 2: Updating user profile with data:", data, "\n\n")
         updates = {}
 
         if 'displayName' in data:

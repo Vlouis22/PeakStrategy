@@ -11,12 +11,14 @@ def register_v1_blueprints(app):
     from .portfolios import portfolio_bp
     from .research import research_bp
     from .monitoring import monitoring_bp
+    from .portfoliobuilder import portfoliobuilder_bp
     
     # Register nested blueprints
     api_v1_bp.register_blueprint(auth_bp)
     api_v1_bp.register_blueprint(users_bp)
     api_v1_bp.register_blueprint(portfolio_bp)
     api_v1_bp.register_blueprint(research_bp)
+    api_v1_bp.register_blueprint(portfoliobuilder_bp)
     
     # Register the main API blueprint
     app.register_blueprint(api_v1_bp)
